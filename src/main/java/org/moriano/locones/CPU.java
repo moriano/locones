@@ -303,7 +303,8 @@ public class CPU {
                 break;
             case 0x06:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ZERO_PAGE, 0);
+                this.ASL(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x16:
                 instruction = "ASL";
@@ -711,8 +712,10 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x46:
-                //TODO
-                throw new UnsupportedOperationException("LSR instruction not implemented!");
+                instruction = "LSR";
+                this.LSR(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
             case 0x56:
                 //TODO
                 throw new UnsupportedOperationException("LSR instruction not implemented!");
@@ -1265,12 +1268,17 @@ public class CPU {
 
         this.carryFlag = ByteUtil.getBit(value, 7) == 1 ? true : false;
 
+
+        this.zeroFlag = result == 0 ? true : false;
+        this.negativeFlag = result > 127 ? true : false;
+
         if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
             this.registerA = result;
-            this.zeroFlag = this.registerA == 0 ? true : false;
-            this.negativeFlag = this.registerA > 127 ? true : false;
+
         } else {
-            throw new UnsupportedOperationException("Ouch!");
+            //Check if this is correct mate
+            this.memory.write(this, addressingMode, arg, result);
+            //throw new UnsupportedOperationException("Ouch!");
         }
 
     }
@@ -1854,7 +1862,8 @@ public class CPU {
         if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
             this.registerA = result;
         } else {
-            throw new UnsupportedOperationException("Ouch!");
+            //TODO check if this correct mate!
+            this.memory.write(this, addressingMode, arg, result);
         }
 
 
