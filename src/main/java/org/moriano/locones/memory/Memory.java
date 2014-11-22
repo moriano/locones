@@ -77,7 +77,7 @@ public class Memory {
     public int read(int address) {
 
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
-            return this.mainMemory.getFromAddress(address & 0x1FFF);
+            return this.mainMemory.getFromAddress(address & 0x7FF);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
             throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet");
         } else if(address <= 0x401F) { //Input/Output registers
@@ -131,7 +131,14 @@ public class Memory {
             Instructions using absolute addressing contain a full 16 bit address to identify the target location.
              */
             this.write(address, value);
+        } else if(addresingMode == AddressingMode.INDEXED_INDIRECT) {
+            //throw new UnsupportedOperationException("REVIEW THIS MATE!");
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
+            cpu.incrementProgramCounter(); // TODO not sure about this
         } else {       //TODO implement the rest of addressing modes...
+            //this.write(address, value);
+            //cpu.incrementProgramCounter();
             throw new UnsupportedOperationException("Ouch!, addressing mode " + addresingMode + " not supported");
             //address = addresingMode.getAddress(cpu, value, this);
             //this.write(address, value);
@@ -139,7 +146,7 @@ public class Memory {
     }
 
     public void write(int address, int value) {
-        if(address <= 0x800) {
+        if(address <= 0x1FFF) {
             this.mainMemory.set(address & 0x7FF, value);
         } else {
             throw new IllegalArgumentException("Impossible to write to address " + address);

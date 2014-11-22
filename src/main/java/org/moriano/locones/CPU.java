@@ -62,7 +62,6 @@ public class CPU {
 
     private int lastCode = 0;
 
-
     private transient String firstInstructionArg =  "";
     private transient String secondInstructionArg = "";
 
@@ -90,6 +89,11 @@ public class CPU {
         this.registerY = 0;
         this.registerS = 0xFD;
         this.programCounter = 0xC000;
+    }
+
+    public int incrementProgramCounter() {
+        this.programCounter++;
+        return this.programCounter;
     }
 
     public void setMemory(Memory memory) {
@@ -746,7 +750,9 @@ public class CPU {
                 this.ORA(AddressingMode.ABSOLUTE_Y, 0);
                 break;
             case 0x01:
-                this.ORA(AddressingMode.INDEXED_INDIRECT, 0);
+                this.ORA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                instruction = "ORA";
+                this.programCounter++;
                 break;
             case 0x11:
                 this.ORA(AddressingMode.INDIRECT_INDEXED, 0);
@@ -1531,7 +1537,8 @@ public class CPU {
      * @param arg
      */
     private void DEC(AddressingMode addressingMode, int arg) {
-        int address = addressingMode.getAddress(this, arg, this.memory);
+        throw new UnsupportedOperationException("Review the memory read mate!");
+        /*int address = addressingMode.getAddress(this, arg, this.memory);
         int value = this.memory.read(address);
         value--;
 
@@ -1549,7 +1556,7 @@ public class CPU {
             this.negativeFlag = false;
         }
 
-        this.memory.write(address, value);
+        this.memory.write(address, value);*/
 
     }
 
@@ -1867,8 +1874,7 @@ public class CPU {
      * An inclusive OR is performed, bit by bit, on the accumulator contents using the contents of a byte of memory.
      */
     private void ORA(AddressingMode addressingMode, int arg) {
-        int address = addressingMode.getAddress(this, arg, this.memory);
-        int value = this.memory.read(address);
+        int value = this.memory.read(this, addressingMode, arg);
 
         this.registerA |= value;
 
