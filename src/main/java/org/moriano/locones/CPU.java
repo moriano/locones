@@ -266,7 +266,8 @@ public class CPU {
                 break;
             case 0x25:
                 instruction = "AND";
-                this.AND(AddressingMode.ZERO_PAGE, 0);
+                this.AND(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x35:
                 instruction = "AND";
@@ -286,7 +287,8 @@ public class CPU {
                 break;
             case 0x21:
                 instruction = "AND";
-                this.AND(AddressingMode.INDEXED_INDIRECT, 0);
+                this.AND(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x31:
                 instruction = "AND";
@@ -735,7 +737,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x05:
-                this.ORA(AddressingMode.ZERO_PAGE, 0);
+                this.ORA(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                instruction = "ORA";
+                this.programCounter++;
                 break;
             case 0x15:
                 this.ORA(AddressingMode.ZERO_PAGE_X, 0);
@@ -950,7 +954,9 @@ public class CPU {
 
             //STY
             case 0x84:
-                this.STY(AddressingMode.ZERO_PAGE, 0);
+                instruction = "STY";
+                this.STY(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x94:
                 this.STY(AddressingMode.ZERO_PAGE_X, 0);
