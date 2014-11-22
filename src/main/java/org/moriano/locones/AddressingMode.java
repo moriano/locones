@@ -151,7 +151,8 @@ public enum AddressingMode {
                 contains the zero page location of the least significant byte of 16 bit address. The Y register is
                 dynamically added to this value to generated the actual target address for operation.
                  */
-                return argument + currentCPU.getRegisterY();
+                throw new UnsupportedOperationException("Implemente Indirect indexed addressing mode!");
+                //return argument + currentCPU.getRegisterY();
             default:
                 return 0;
         }
