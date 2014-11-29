@@ -136,6 +136,13 @@ public class Memory {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
             cpu.incrementProgramCounter(); // TODO not sure about this
+
+        } else if(addresingMode == AddressingMode.INDIRECT_INDEXED) {
+            //throw new UnsupportedOperationException("REVIEW THIS MATE!");
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
+            cpu.incrementProgramCounter(); // TODO not sure about this
+
         } else {       //TODO implement the rest of addressing modes...
             //this.write(address, value);
             //cpu.incrementProgramCounter();
