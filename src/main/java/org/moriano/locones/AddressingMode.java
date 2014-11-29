@@ -147,11 +147,18 @@ public enum AddressingMode {
                 /*
                 Indirect indexed ==> Not used yet
 
+                See http://homepage.ntlworld.com/cyborgsystems/CS_Main/6502/6502.htm#ADDR-INDI
+
                 Indirect indirect addressing is the most common indirection mode used on the 6502. In instruction
                 contains the zero page location of the least significant byte of 16 bit address. The Y register is
                 dynamically added to this value to generated the actual target address for operation.
                  */
-                throw new UnsupportedOperationException("Implemente Indirect indexed addressing mode!");
+                //throw new UnsupportedOperationException("Implemente Indirect indexed addressing mode!");
+                int myLower = memory.read(argument);
+                int myHigher = memory.read((argument + 1) & 0xFF) << 8;
+                int myMemory = ((myHigher | myLower) + currentCPU.getRegisterY() ) & 0xFFFF;
+                return myMemory;
+
                 //return argument + currentCPU.getRegisterY();
             default:
                 return 0;

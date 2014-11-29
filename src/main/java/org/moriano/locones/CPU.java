@@ -776,7 +776,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x11:
-                this.ORA(AddressingMode.INDIRECT_INDEXED, 0);
+                this.ORA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                instruction = "ORA";
+                this.programCounter++;
                 break;
 
             //PHA
