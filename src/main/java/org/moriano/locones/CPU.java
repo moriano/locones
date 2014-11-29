@@ -293,7 +293,8 @@ public class CPU {
                 break;
             case 0x31:
                 instruction = "AND";
-                this.AND(AddressingMode.INDIRECT_INDEXED, 0);
+                this.AND(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
 
             //ASL
@@ -1915,11 +1916,15 @@ public class CPU {
     private void ORA(AddressingMode addressingMode, int arg) {
         int value = this.memory.read(this, addressingMode, arg);
 
-        this.registerA |= value;
+        this.registerA = this.registerA | value;
 
         if(this.registerA == 0) {
             this.zeroFlag = true;
-        } else if(this.registerA > 127) {
+        } else {
+            this.zeroFlag = false;
+        }
+
+        if(this.registerA > 127) {
             this.negativeFlag = true;
         }
 
