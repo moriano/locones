@@ -786,6 +786,7 @@ public class CPU {
                 this.ORA(AddressingMode.ABSOLUTE_X, 0);
                 break;
             case 0x19:
+                instruction = "ORA";
                 this.ORA(AddressingMode.ABSOLUTE_Y, 0);
                 break;
             case 0x01:

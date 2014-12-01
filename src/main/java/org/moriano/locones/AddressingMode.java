@@ -115,8 +115,8 @@ public enum AddressingMode {
                 The Y register indexed absolute addressing mode is the same as the previous mode only with the contents
                 of the Y register added to the 16 bit address from the instruction.
                  */
-                throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
-                //return argument + currentCPU.getRegisterY();
+                //throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
+                return (argument + currentCPU.getRegisterY()) & 0xFFFF;
             case 11:
                 /*
                 Indirect ==> Not used yet
