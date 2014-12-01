@@ -612,7 +612,7 @@ public class CPU {
                 break;
             case 0x6C:
                 instruction = "JMP";
-                this.JMP(AddressingMode.INDIRECT, 0);
+                this.JMP(AddressingMode.INDIRECT, this.getInstructionArg(2));
                 break;
 
             //JSR
@@ -1106,7 +1106,7 @@ public class CPU {
         } else {
             System.out.println("\n");
             if (status.getAddress() != programCounter) {
-                System.out.printf("Address does not match, expected vs current %d -- %d\n", status.getAddress(), programCounter );
+                System.out.printf("Address does not match, expected vs current %s -- %s\n", Integer.toHexString(status.getAddress()).toUpperCase(), Integer.toHexString(programCounter).toUpperCase());
             }
             if (!status.getInstruction().equals(instruction)) {
                 System.out.printf("Instruction does not match, expected vs current %s -- %s\n", status.getInstruction(), instruction );
@@ -1761,6 +1761,21 @@ public class CPU {
      * @param arg
      */
     private void JMP(AddressingMode addressingMode, int arg) {
+        /*
+        http://forums.nesdev.com/viewtopic.php?t=6621&start=15
+
+        DBB5  6C FF 02  JMP ($02FF) = A900              A:60 X:07 Y:00 P:65 SP:F9 CYC:180 SL:63
+        0300  A9 AA     LDA #$AA                        A:60 X:07 Y:00 P:65 SP:F9 CYC:195 SL:63
+
+        JMP ($02FF) = A900, and after that the PC is at 0300, and not at A900. did i get wrong the indirect addressing
+         mode?[/code]
+
+        Answer => Indirect jump is bugged on the 6502, it doesn't add 1 to the full 16-bit value when it reads the
+        second byte, it adds 1 to the low byte only. So JMP (03FF) reads from 3FF and 300, not 3FF and 400.
+
+
+         */
+
         int address = addressingMode.getAddress(this, arg, this.memory);
         this.programCounter = address;
     }

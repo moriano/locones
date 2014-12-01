@@ -127,8 +127,26 @@ public enum AddressingMode {
                 For example if location $0120 contains $FC and location $0121 contains $BA then the instruction JMP
                 ($0120) will cause the next instruction execution to occur at $BAFC (e.g. the contents of $0120 and
                 $0121).
+
+                Believe it or not, the first 6502 processors had a bug on the indirect addressing mode:
+
+                "An original 6502 has does not correctly fetch the target address if the indirect vector falls on a
+                page boundary (e.g. $xxFF where xx is and value from $00 to $FF). In this case fetches the LSB from
+                $xxFF as expected but takes the MSB from $xx00. This is fixed in some later chips like the 65SC02 so
+                for compatibility always ensure the indirect vector is not at the end of the page."
+
                  */
-                return memory.read(memory.read(argument));
+                int indirectLower = memory.read(argument);
+                int indirectHigher;
+
+                if((argument & 0xFF) == 0xFF) {
+                    indirectHigher = memory.read(argument & 0xFF00);
+                } else {
+                    indirectHigher = memory.read(argument + 1);
+                }
+                indirectHigher = indirectHigher << 8;
+                int indirectFinal = indirectHigher | indirectLower;
+                return indirectFinal;
             case 12:
                 /*
                 Indexed indirect ==> Seems to work
