@@ -271,7 +271,8 @@ public class CPU {
                 break;
             case 0x35:
                 instruction = "AND";
-                this.AND(AddressingMode.ZERO_PAGE_X, 0);
+                this.AND(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x2D:
                 instruction = "AND";
@@ -280,11 +281,13 @@ public class CPU {
                 break;
             case 0x3D:
                 instruction = "AND";
-                this.AND(AddressingMode.ABSOLUTE_X, 0);
+                this.AND(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
             case 0x39:
                 instruction = "AND";
-                this.AND(AddressingMode.ABSOLUTE_Y, 0);
+                this.AND(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
             case 0x21:
                 instruction = "AND";
@@ -300,8 +303,8 @@ public class CPU {
             //ASL
             case 0x0A:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ACCUMULATOR, 0);
-                this.programCounter++;
+                this.ASL(AddressingMode.ACCUMULATOR, this.registerA); //TODO Check this
+                this.programCounter++; //TODO check this
                 break;
             case 0x06:
                 instruction = "ASL";
@@ -310,7 +313,8 @@ public class CPU {
                 break;
             case 0x16:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ZERO_PAGE_X, 0);
+                this.ASL(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x0E:
                 instruction = "ASL";
@@ -319,7 +323,8 @@ public class CPU {
                 break;
             case 0x1E:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ABSOLUTE_X, 0);
+                this.ASL(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
 
             //BCC
@@ -412,7 +417,9 @@ public class CPU {
 
             //CLI
             case 0x58:
+                instruction = "CLI";
                 this.CLI();
+                this.programCounter++;
                 break;
 
             //CLV
@@ -505,7 +512,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0xD6:
-                this.DEC(AddressingMode.ZERO_PAGE_X, 0);
+                instruction = "DEC";
+                this.DEC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0xCE:
                 instruction = "DEC";
@@ -513,7 +522,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0xDE:
-                this.DEC(AddressingMode.ABSOLUTE_X, 0);
+                instruction = "DEC";
+                this.DEC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
 
             //DEX
@@ -587,7 +598,8 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0xFE:
-                this.INC(AddressingMode.ABSOLUTE_X, 0);
+                this.INC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
 
             //INX
@@ -645,6 +657,7 @@ public class CPU {
             case 0xBD:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
             case 0xB9:
                 instruction = "LDA";
@@ -719,8 +732,8 @@ public class CPU {
             //LSR
             case 0x4A:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ACCUMULATOR, 0);
-                this.programCounter++;
+                this.LSR(AddressingMode.ACCUMULATOR, this.registerA); //TODO Check this
+                this.programCounter++; //TODO check this
                 break;
             case 0x46:
                 instruction = "LSR";
@@ -728,16 +741,20 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x56:
-                //TODO
-                throw new UnsupportedOperationException("LSR instruction not implemented!");
+                instruction = "LSR";
+                this.LSR(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
             case 0x4E:
                 instruction = "LSR";
                 this.LSR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
                 break;
             case 0x5E:
-                //TODO
-                throw new UnsupportedOperationException("LSR instruction not implemented!");
+                instruction = "LSR";
+                this.LSR(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
 
             //NOP
             case 0xEA:
