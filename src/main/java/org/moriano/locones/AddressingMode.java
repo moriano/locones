@@ -76,7 +76,7 @@ public enum AddressingMode {
                 For example if the X register contains $0F and the instruction LDA $80,X is executed then the
                 accumulator will be loaded from $008F (e.g. $80 + $0F => $8F).
                  */
-                return argument + currentCPU.getRegisterX();
+                return (argument+currentCPU.getRegisterX()) & 0xFF;
             case 6:
                 /*
                 Zero page y ==> Not used yet

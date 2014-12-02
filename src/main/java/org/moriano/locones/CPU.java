@@ -775,7 +775,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x15:
-                this.ORA(AddressingMode.ZERO_PAGE_X, 0);
+                instruction = "ORA";
+                this.ORA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x0D:
                 instruction = "ORA";
@@ -787,7 +789,8 @@ public class CPU {
                 break;
             case 0x19:
                 instruction = "ORA";
-                this.ORA(AddressingMode.ABSOLUTE_Y, 0);
+                this.ORA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
             case 0x01:
                 this.ORA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
@@ -958,6 +961,7 @@ public class CPU {
             case 0x95:
                 instruction = "STA";
                 this.STA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x8D:
                 instruction = "STA";
@@ -1005,7 +1009,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x94:
-                this.STY(AddressingMode.ZERO_PAGE_X, 0);
+                instruction = "STY";
+                this.STY(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0x8C:
                 instruction = "STY";
@@ -1884,7 +1890,7 @@ public class CPU {
     /**
      * LDY - Load Y Register
      *
-     * Loads a byte of memory into the X register setting the zero and negative flags as appropriate.
+     * Loads a byte of memory into the Y register setting the zero and negative flags as appropriate.
      */
     private void LDY(AddressingMode addressingMode, int arg) {
         int value = this.memory.read(this, addressingMode, arg);

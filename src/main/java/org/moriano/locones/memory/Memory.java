@@ -142,7 +142,13 @@ public class Memory {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
             cpu.incrementProgramCounter(); // TODO not sure about this
-
+        } else if(addresingMode == AddressingMode.ABSOLUTE_Y) {
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
+            cpu.incrementProgramCounter(); // TODO not sure about this
+        } else if(addresingMode == AddressingMode.ZERO_PAGE_X) {
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
         } else {       //TODO implement the rest of addressing modes...
             //this.write(address, value);
             //cpu.incrementProgramCounter();
