@@ -135,17 +135,17 @@ public class Memory {
             //throw new UnsupportedOperationException("REVIEW THIS MATE!");
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); // TODO not sure about this
+            cpu.incrementProgramCounter(); // TODO not sure about this ==> REVIEW IT, THIS IS NOT A GOOD IDEA MATE!
 
         } else if(addresingMode == AddressingMode.INDIRECT_INDEXED) {
             //throw new UnsupportedOperationException("REVIEW THIS MATE!");
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); // TODO not sure about this
+            cpu.incrementProgramCounter(); // TODO not sure about this, THIS IS NOT A GOOD IDEA MATE!
         } else if(addresingMode == AddressingMode.ABSOLUTE_Y) {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); // TODO not sure about this
+            cpu.incrementProgramCounter(); // TODO not sure about this, THIS IS NOT A GOOD IDEA MATE!
         } else if(addresingMode == AddressingMode.ZERO_PAGE_X) {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
@@ -155,7 +155,7 @@ public class Memory {
         } else if(addresingMode == AddressingMode.ABSOLUTE_X) {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); //TODO not sure about this
+            cpu.incrementProgramCounter(); //TODO not sure about this, THIS IS NOT A GOOD IDEA MATE!
         }else {       //TODO implement the rest of addressing modes...
             //this.write(address, value);
             //cpu.incrementProgramCounter();

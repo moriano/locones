@@ -35,8 +35,8 @@ public enum AddressingMode {
 
     public int getAddress(CPU currentCPU, int argument, Memory memory){
         //TODO this is confusing and seems to SUCK!!
-        switch (this.id) {
-            case 1:
+        switch (this) {
+            case IMPLICIT:
                 /*
                 IMPLICIT
                 For many 6502 instructions the source and destination of the information to be manipulated is implied
@@ -44,21 +44,21 @@ public enum AddressingMode {
                 Operations like 'Clear Carry Flag' (CLC) and 'Return from Subroutine' (RTS) are implicit.
                  */
                 return 0;
-            case 2:
+            case ACCUMULATOR:
                 /*
                 ACCUMULATOR ==> Not used yet
                 Some instructions have an option to operate directly upon the accumulator. The programmer specifies
                 this by using a special operand value, 'A'. For example:
                  */
                 return 0; //TODO
-            case 3:
+            case INMEDIATE:
                 /*
                 Immediate ==> Seems to work
                 Immediate addressing allows the programmer to directly specify an 8 bit constant within the instruction.
                 It is indicated by a '#' symbol followed by an numeric expression. For example:
                  */
                 return argument;
-            case 4:
+            case ZERO_PAGE:
                 /*
                 Zero page ==> Seems to work
                 An instruction using zero page addressing mode has only an 8 bit address operand. This limits it to
@@ -68,7 +68,7 @@ public enum AddressingMode {
                 during execution (important for speed).
                  */
                 return argument;
-            case 5:
+            case ZERO_PAGE_X:
                 /*
                 Zero page x ==> Not used yet
                 The address to be accessed by an instruction using indexed zero page addressing is calculated by taking
@@ -77,7 +77,7 @@ public enum AddressingMode {
                 accumulator will be loaded from $008F (e.g. $80 + $0F => $8F).
                  */
                 return (argument+currentCPU.getRegisterX()) & 0xFF;
-            case 6:
+            case ZERO_PAGE_Y:
                 /*
                 Zero page y ==> Not used yet
                 The address to be accessed by an instruction using indexed zero page addressing is calculated by taking
@@ -85,7 +85,7 @@ public enum AddressingMode {
                 This mode can only be used with the LDX and STX instructions.
                  */
                 return (argument + currentCPU.getRegisterY()) & 0xFF;
-            case 7:
+            case RELATIVE:
                 /*
                 Relative ==> Not used yet
                 Relative addressing mode is used by branch instructions (e.g. BEQ, BNE, etc.) which contain a signed 8
@@ -94,14 +94,14 @@ public enum AddressingMode {
                 range for the target instruction must be with -126 to +129 bytes of the branch.
                  */
                 return argument + currentCPU.getProgramCounter();
-            case 8:
+            case ABSOLUTE:
                 /*
                 Absolute ==> Seems to work
 
                 Instructions using absolute addressing contain a full 16 bit address to identify the target location.
                  */
                 return argument;
-            case 9:
+            case ABSOLUTE_X:
                 /*
                 Absolute,X ==> Not used yet
                 The address to be accessed by an instruction using X register indexed absolute addressing is computed
@@ -109,7 +109,7 @@ public enum AddressingMode {
                 if X contains $92 then an STA $2000,X instruction will store the accumulator at $2092 (e.g. $2000 + $92).
                  */
                 return (argument + currentCPU.getRegisterX()) & 0xFFFF;
-            case 10:
+            case ABSOLUTE_Y:
                 /*
                 Absolute Y ==> Not used yet
                 The Y register indexed absolute addressing mode is the same as the previous mode only with the contents
@@ -117,7 +117,7 @@ public enum AddressingMode {
                  */
                 //throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
                 return (argument + currentCPU.getRegisterY()) & 0xFFFF;
-            case 11:
+            case INDIRECT:
                 /*
                 Indirect ==> Not used yet
 
@@ -148,7 +148,7 @@ public enum AddressingMode {
                 indirectHigher = indirectHigher << 8;
                 int indirectFinal = indirectHigher | indirectLower;
                 return indirectFinal;
-            case 12:
+            case INDEXED_INDIRECT:
                 /*
                 Indexed indirect ==> Seems to work
 
@@ -162,7 +162,7 @@ public enum AddressingMode {
                 return finalAddress;
                 //throw new UnsupportedOperationException("Indexed indirect addressing not supported!");
 
-            case 13:
+            case INDIRECT_INDEXED:
                 /*
                 Indirect indexed ==> Not used yet
 
