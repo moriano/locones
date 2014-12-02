@@ -1622,7 +1622,12 @@ public class CPU {
      */
     private void BNE(int arg) {
         if(!this.isZeroFlag()) {
-            this.programCounter += arg;
+            //Boy, this arg could represent a negative number so...
+            if(ByteUtil.getBit(arg, 7) == 1) {
+                this.programCounter += (arg - 0xFF) - 1; //TODO CHECK ALL BRANCH INSTRUCTIONS to consider negative values!!!!!
+            } else {
+                this.programCounter += arg;
+            }
         }
     }
 
