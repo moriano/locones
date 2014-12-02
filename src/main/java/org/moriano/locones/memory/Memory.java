@@ -149,7 +149,14 @@ public class Memory {
         } else if(addresingMode == AddressingMode.ZERO_PAGE_X) {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
-        } else {       //TODO implement the rest of addressing modes...
+        } else if(addresingMode == AddressingMode.ZERO_PAGE_Y) {
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
+        } else if(addresingMode == AddressingMode.ABSOLUTE_X) {
+            int finalAddress = addresingMode.getAddress(cpu, address, this);
+            this.write(finalAddress, value);
+            cpu.incrementProgramCounter(); //TODO not sure about this
+        }else {       //TODO implement the rest of addressing modes...
             //this.write(address, value);
             //cpu.incrementProgramCounter();
             throw new UnsupportedOperationException("Ouch!, addressing mode " + addresingMode + " not supported");

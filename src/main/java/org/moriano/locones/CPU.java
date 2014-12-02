@@ -590,7 +590,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0xF6:
-                this.INC(AddressingMode.ZERO_PAGE_X, 0);
+                instruction = "INC";
+                this.INC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
                 break;
             case 0xEE:
                 instruction = "INC";
@@ -598,6 +600,7 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0xFE:
+                instruction = "INC";
                 this.INC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
                 this.programCounter++;
                 break;
@@ -785,7 +788,9 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x1D:
-                this.ORA(AddressingMode.ABSOLUTE_X, 0);
+                instruction = "ORA";
+                this.ORA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
                 break;
             case 0x19:
                 instruction = "ORA";
@@ -843,16 +848,20 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x36:
-                //TODO
-                throw new UnsupportedOperationException("RQL instruction not implemented!");
+                instruction = "ROL";
+                this.ROL(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
             case 0x2E:
                 instruction = "ROL";
                 this.ROL(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
                 break;
             case 0x3E:
-                //TODO
-                throw new UnsupportedOperationException("RQL instruction not implemented!");
+                instruction = "ROL";
+                this.ROL(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
 
             //ROR
             case 0x6A:
@@ -866,16 +875,20 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x76:
-                //TODO
-                throw new UnsupportedOperationException("ROR instruction not implemented!");
+                instruction = "ROR";
+                this.ROR(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
             case 0x6E:
                 instruction = "ROR";
                 this.ROR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
                 break;
             case 0x7E:
-                //TODO
-                throw new UnsupportedOperationException("ROR instruction not implemented!");
+                instruction = "ROR";
+                this.ROR(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
 
             //RTI
             case 0x40:
@@ -1328,7 +1341,8 @@ public class CPU {
 
         } else {
             //Check if this is correct mate
-            this.memory.write(this, addressingMode, arg, result);
+            int address = addressingMode.getAddress(this, arg, this.memory);
+            this.memory.write(address, result);
             //throw new UnsupportedOperationException("Ouch!");
         }
 
@@ -1619,7 +1633,8 @@ public class CPU {
             this.negativeFlag = false;
         }
 
-        this.memory.write(this, addressingMode, arg, value);
+        int address = addressingMode.getAddress(this, arg, this.memory);
+        this.memory.write(address, value);
 
     }
 
@@ -1927,7 +1942,8 @@ public class CPU {
             this.registerA = result;
         } else {
             //TODO check if this correct mate!
-            this.memory.write(this, addressingMode, arg, result);
+            int address = addressingMode.getAddress(this, arg, this.memory);
+            this.memory.write(address, result);
         }
 
 
@@ -2073,7 +2089,8 @@ public class CPU {
             this.registerA = result;
 
         } else {
-            this.memory.write(this, addressingMode, arg, result);
+            int address = addressingMode.getAddress(this, arg, this.memory);
+            this.memory.write(address, result);
         }
     }
 
@@ -2094,7 +2111,8 @@ public class CPU {
             this.registerA = result;
 
         } else {
-            this.memory.write(this, addressingMode, arg, result);
+            int address = addressingMode.getAddress(this, arg, this.memory);
+            this.memory.write(address, result);
             //TODO Check
             //throw new UnsupportedOperationException("Ouch!");
         }

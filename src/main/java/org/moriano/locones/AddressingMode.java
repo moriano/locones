@@ -84,7 +84,7 @@ public enum AddressingMode {
                 the 8 bit zero page address from the instruction and adding the current value of the Y register to it.
                 This mode can only be used with the LDX and STX instructions.
                  */
-                return argument + currentCPU.getRegisterY();
+                return (argument + currentCPU.getRegisterY()) & 0xFF;
             case 7:
                 /*
                 Relative ==> Not used yet
@@ -108,7 +108,7 @@ public enum AddressingMode {
                 by taking the 16 bit address from the instruction and added the contents of the X register. For example
                 if X contains $92 then an STA $2000,X instruction will store the accumulator at $2092 (e.g. $2000 + $92).
                  */
-                return argument + currentCPU.getRegisterX();
+                return (argument + currentCPU.getRegisterX()) & 0xFFFF;
             case 10:
                 /*
                 Absolute Y ==> Not used yet
