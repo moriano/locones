@@ -766,6 +766,195 @@ public class CPU {
                 this.programCounter++;
                 break;
 
+            case 0x1A:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x3A:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x5A:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x7A:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xDA:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+            case 0xFA:
+                instruction = "NOP";
+                this.NOP();
+                this.programCounter++;
+                break;
+
+
+            //And with you unnoficial codes, in this case DOP (Double NOP), still programmed as a NOP
+            //DOP
+            case 0x04:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x44:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x64:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x74:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xD4:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xF4:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x80:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x82:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x89:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xC2:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xE2:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x14:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x34:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x54:
+                instruction ="NOP";
+                this.getInstructionArg(1);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            //And with you unnoficial codes, in this case TOP (Triple NOP), still programmed as a NOP
+            //TOP
+            case 0x0C:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x1C:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x3C:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x5C:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0x7C:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xDC:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+            case 0xFC:
+                instruction ="NOP";
+                this.getInstructionArg(2);
+                this.NOP();
+                this.programCounter++;
+                break;
+
+
+
             //ORA
             case 0x09:
                 this.ORA(AddressingMode.INMEDIATE, this.getInstructionArg(1));
