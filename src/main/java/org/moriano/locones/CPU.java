@@ -1,6 +1,7 @@
 package org.moriano.locones;
 
 
+import com.sun.jndi.cosnaming.IiopUrl;
 import org.moriano.locones.memory.Memory;
 import org.moriano.locones.util.ByteUtil;
 import org.moriano.locones.util.LogReader;
@@ -636,6 +637,43 @@ public class CPU {
                 this.JSR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 break;
 
+            //LAX => Unofficial instruction
+            case 0xA3:
+                instruction = "LAX";
+                this.LAX(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xA7:
+                instruction = "LAX";
+                this.LAX(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xAF:
+                instruction = "LAX";
+                this.LAX(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
+
+            case 0xB3:
+                instruction = "LAX";
+                this.LAX(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xB7:
+                instruction = "LAX";
+                this.LAX(AddressingMode.ZERO_PAGE_Y, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xBF:
+                instruction = "LAX";
+                this.LAX(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
+
             //LDA
             case 0xA9:
                 instruction = "LDA";
@@ -667,11 +705,14 @@ public class CPU {
                 this.LDA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
                 this.programCounter++;
                 break;
+
             case 0xA1:
                 instruction = "LDA";
                 this.LDA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
                 this.programCounter++;
                 break;
+
+
             case 0xB1:
                 instruction = "LDA";
                 this.LDA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
@@ -2046,6 +2087,22 @@ public class CPU {
         this.stackPush(lowByte);
 
         this.programCounter = arg;
+    }
+
+    /**
+     * LAX - Load accumulator and X register with memory.
+     *
+     * This is an UNOFFICIAL instruction
+     * Status flags: N,Z
+     *
+     * This opcode loads both the accumulator and the X register with the contents of a memory location.
+     *
+     * @param addressingMode
+     * @param arg
+     */
+    private void LAX(AddressingMode addressingMode, int arg) {
+        this.LDA(addressingMode, arg);
+        this.LDX(addressingMode, arg);
     }
 
     /**
