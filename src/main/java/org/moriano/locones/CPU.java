@@ -1132,6 +1132,13 @@ public class CPU {
                 this.RTS();
                 break;
 
+            //SAX => Unofficial instruction
+            case 0x83:
+                instruction = "SAX";
+                this.SAX(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
             //SBC
             case 0xE9:
                 instruction = "SBC";
@@ -2414,6 +2421,49 @@ public class CPU {
         this.programCounter = address + 1;
 
 
+    }
+
+
+    /**
+     * SAX => Unofficial operation code
+     * SAX ANDs the contents of the A and X registers (leaving the contents of A
+     * intact), subtracts an immediate value, and then stores the result in X.
+     *
+     * ... A few points might be made about the action of subtracting an immediate
+     * value.  It actually works just like the CMP instruction, except that CMP
+     * does not store the result of the subtraction it performs in any register.
+     * This subtract operation is not affected by the state of the Carry flag,
+     * though it does affect the Carry flag.  It does not affect the Overflow
+     * flag.
+     *
+     * Example:
+     *      SAX #$5A        ;CB 5A
+     *
+     *    Equivalent instructions:
+     *      STA $02
+     *      TXA
+     *      AND $02
+     *      SEC
+     *      SBC #$5A
+     *      TAX
+     *      LDA $02
+     *
+     *
+     *      OR MAYBE
+     *
+     *      AND X register with accumulator and store result in memory.
+     Status flags: N,Z
+     * @param addressingMode
+     * @param arg
+     */
+    private void SAX(AddressingMode addressingMode, int arg) {
+        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
+        int result = this.registerX & this.registerA;
+        this.memory.write(finalAddress, result);
+
+        //this.zeroFlag = result == 0 ? true : false;
+        //this.negativeFlag = result > 127 ? true : false;
+        //TODO status flags?
     }
 
     /**
