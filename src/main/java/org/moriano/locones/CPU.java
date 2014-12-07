@@ -1135,7 +1135,7 @@ public class CPU {
             //SAX => Unofficial instruction
             case 0x83:
                 instruction = "SAX";
-                this.SAX(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.SAX(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
                 this.programCounter++;
                 break;
 
@@ -1311,8 +1311,8 @@ public class CPU {
                 this.programCounter++;
                 break;
 
-            //default:
-            //    throw new UnsupportedOperationException("Unknown opCode " + opCode);
+            default:
+                throw new UnsupportedOperationException("Unknown opCode " + opCode);
         }
 
         String instructionArgument = this.firstInstructionArg + this.secondInstructionArg;
@@ -1796,7 +1796,8 @@ public class CPU {
 
     /**
      * CPX - Compare X Register
-     * This instruction compares the contents of the X register with another memory held value and sets the zero and carry flags as appropriate.
+     * This instruction compares the contents of the X register with another memory held value and sets the zero and
+     * carry flags as appropriate.
      */
     private void CPX(AddressingMode addressingMode, int arg) {
         int value = this.memory.read(this, addressingMode, arg);
@@ -2426,44 +2427,16 @@ public class CPU {
 
     /**
      * SAX => Unofficial operation code
-     * SAX ANDs the contents of the A and X registers (leaving the contents of A
-     * intact), subtracts an immediate value, and then stores the result in X.
+     * http://wiki.nesdev.com/w/index.php/Programming_with_unofficial_opcodes
      *
-     * ... A few points might be made about the action of subtracting an immediate
-     * value.  It actually works just like the CMP instruction, except that CMP
-     * does not store the result of the subtraction it performs in any register.
-     * This subtract operation is not affected by the state of the Carry flag,
-     * though it does affect the Carry flag.  It does not affect the Overflow
-     * flag.
-     *
-     * Example:
-     *      SAX #$5A        ;CB 5A
-     *
-     *    Equivalent instructions:
-     *      STA $02
-     *      TXA
-     *      AND $02
-     *      SEC
-     *      SBC #$5A
-     *      TAX
-     *      LDA $02
-     *
-     *
-     *      OR MAYBE
-     *
-     *      AND X register with accumulator and store result in memory.
-     Status flags: N,Z
+     * Stores the bitwise AND of A and X. As with STA and STX, no flags are affected.
      * @param addressingMode
      * @param arg
      */
     private void SAX(AddressingMode addressingMode, int arg) {
         int finalAddress = addressingMode.getAddress(this, arg, this.memory);
-        int result = this.registerX & this.registerA;
+        int result = this.registerA & this.registerX;
         this.memory.write(finalAddress, result);
-
-        //this.zeroFlag = result == 0 ? true : false;
-        //this.negativeFlag = result > 127 ? true : false;
-        //TODO status flags?
     }
 
     /**
