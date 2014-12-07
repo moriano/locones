@@ -506,6 +506,49 @@ public class CPU {
                 this.programCounter++;
                 break;
 
+            //DCP Unofficial operation code!
+            case 0xC7:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xD7:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xC3:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xD3:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0xCF:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
+
+            case 0xDF:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE_X, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
+
+            case 0xDB:
+                instruction = "DCP";
+                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE_Y, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
             //DEC
             case 0xC6:
                 instruction = "DEC";
@@ -1139,7 +1182,31 @@ public class CPU {
                 this.programCounter++;
                 break;
 
+            case 0x87:
+                instruction = "SAX";
+                this.SAX(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
+            case 0x8F:
+                instruction = "SAX";
+                this.SAX(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.programCounter++;
+                break;
+
+            case 0x97:
+                instruction = "SAX";
+                this.SAX(AddressingMode.ZERO_PAGE_Y, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
             //SBC
+            case 0xEB: //Warning! this is really an illegal opcode, however must be implemented
+                instruction = "SBC";
+                this.SBC(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.programCounter++;
+                break;
+
             case 0xE9:
                 instruction = "SBC";
                 this.SBC(AddressingMode.INMEDIATE, this.getInstructionArg(1));
@@ -1312,7 +1379,7 @@ public class CPU {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown opCode " + opCode);
+                throw new UnsupportedOperationException("Unknown opCode 0x" + Integer.toHexString(opCode).toUpperCase());
         }
 
         String instructionArgument = this.firstInstructionArg + this.secondInstructionArg;
@@ -1784,6 +1851,7 @@ public class CPU {
             this.carryFlag = false;
         }
 
+
         int t = this.registerA - value;
         if(t > 127 || t < 0) {
             this.negativeFlag = true;
@@ -1852,14 +1920,19 @@ public class CPU {
     }
 
     /**
-     * DEC - Decrement Memory
-     * Subtracts one from the value held at a specified memory location setting the zero and negative flags as
-     * appropriate.
+     * DCP
+     *
+     * Unofficial instruction!
+     *
+     * This opcode DECs the contents of a memory location and then CMPs the result with the A register.
+     *
+     * DEC {adr} + CMP {adr}
      * @param addressingMode
      * @param arg
      */
-    private void DEC(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void DCP(AddressingMode addressingMode, int arg) {
+        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
+        int value = this.memory.read(finalAddress);
         value--;
 
         value = value & 0xFF;
@@ -1876,8 +1949,63 @@ public class CPU {
             this.negativeFlag = false;
         }
 
-        int address = addressingMode.getAddress(this, arg, this.memory);
-        this.memory.write(address, value);
+        this.memory.write(finalAddress, value);
+
+
+        //CMP TODO CHECK THE CMP INSTRUCTION FOR POSSIBLE NEGATIVES, IT MAY NOT BE CORRECT RIGHT NOW!
+        value = this.memory.read(this, addressingMode, arg);
+        if(ByteUtil.getBit(value, 7) == 1) {
+            value = value - 0xFF - 1;
+        }
+        if(this.registerA == value) {
+            this.zeroFlag = true;
+        } else {
+            this.zeroFlag = false;
+        }
+
+        if(this.registerA >= value && value > 0) {
+            this.carryFlag = true;
+        } else {
+            this.carryFlag = false;
+        }
+
+
+        int t = this.registerA - value;
+        if(t > 127 || t < 0) {
+            this.negativeFlag = true;
+        } else {
+            this.negativeFlag = false;
+        }
+
+    }
+
+    /**
+     * DEC - Decrement Memory
+     * Subtracts one from the value held at a specified memory location setting the zero and negative flags as
+     * appropriate.
+     * @param addressingMode
+     * @param arg
+     */
+    private void DEC(AddressingMode addressingMode, int arg) {
+        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
+        int value = this.memory.read(finalAddress);
+        value--;
+
+        value = value & 0xFF;
+
+        if(value == 0) {
+            this.zeroFlag = true;
+        } else {
+            this.zeroFlag = false;
+        }
+
+        if(value > 127) {
+            this.negativeFlag = true;
+        } else {
+            this.negativeFlag = false;
+        }
+
+        this.memory.write(finalAddress, value);
 
     }
 
