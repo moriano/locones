@@ -1851,6 +1851,7 @@ public class CPU {
      * @param value
      */
     private void CMP(int value) {
+        value = value & 0xFF;
         if(this.registerA == value) {
             this.zeroFlag = true;
         } else {
@@ -1944,7 +1945,7 @@ public class CPU {
      */
     private void DCP(int address, int value) {
         this.DEC(address);
-        this.CMP(value);
+        this.CMP(value - 1);
     }
 
     /**
