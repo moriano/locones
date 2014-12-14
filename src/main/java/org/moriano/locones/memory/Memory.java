@@ -166,6 +166,9 @@ public class Memory {
     }
 
     public void write(int address, int value) {
+        if(value < 0) {
+            value += 128;
+        }
         if(address <= 0x1FFF) {
             this.mainMemory.set(address & 0x7FF, value);
         } else {

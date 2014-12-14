@@ -433,42 +433,42 @@ public class CPU {
             //CMP
             case 0xC9:
                 instruction = "CMP";
-                this.CMP(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.CMP(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xC5:
                 instruction = "CMP";
-                this.CMP(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.CMP(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xD5:
                 instruction = "CMP";
-                this.CMP(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.CMP(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xCD:
                 instruction = "CMP";
-                this.CMP(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xDD:
                 instruction = "CMP";
-                this.CMP(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xD9:
                 instruction = "CMP";
-                this.CMP(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xC1:
                 instruction = "CMP";
-                this.CMP(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.CMP(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xD1:
                 instruction = "CMP";
-                this.CMP(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.CMP(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
 
@@ -509,65 +509,79 @@ public class CPU {
             //DCP Unofficial operation code!
             case 0xC7:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.ZERO_PAGE, this.getInstructionArg(1));
+                int address = AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory);
+                int value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xD7:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.ZERO_PAGE_X, this.getInstructionArg(1));
+                address = AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xC3:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.INDEXED_INDIRECT, this.getInstructionArg(1));
+                address = AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xD3:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.INDIRECT_INDEXED, this.getInstructionArg(1));
+                address = AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xCF:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE, this.getInstructionArg(2));
+                address = AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xDF:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE_X, this.getInstructionArg(2));
+                address = AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             case 0xDB:
                 instruction = "DCP";
-                this.DCP(AddressingMode.ABSOLUTE.ABSOLUTE_Y, this.getInstructionArg(1));
+                address = AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(1), this.memory);
+                value = this.memory.read(address);
+                this.DCP(address, value);
                 this.programCounter++;
                 break;
 
             //DEC
             case 0xC6:
                 instruction = "DEC";
-                this.DEC(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.DEC(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
                 break;
             case 0xD6:
                 instruction = "DEC";
-                this.DEC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.DEC(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
                 break;
             case 0xCE:
                 instruction = "DEC";
-                this.DEC(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.DEC(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
                 break;
             case 0xDE:
                 instruction = "DEC";
-                this.DEC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.DEC(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
                 break;
 
@@ -1834,11 +1848,9 @@ public class CPU {
      * CMP - Compare
      * This instruction compares the contents of the accumulator with another memory held value and sets the zero and
      * carry flags as appropriate.
-     * @param addressingMode
-     * @param arg
+     * @param value
      */
-    private void CMP(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void CMP(int value) {
         if(this.registerA == value) {
             this.zeroFlag = true;
         } else {
@@ -1853,13 +1865,13 @@ public class CPU {
 
 
         int t = this.registerA - value;
-        if(t > 127 || t < 0) {
+        t &= 0xFF;
+        if(t > 127) {
             this.negativeFlag = true;
         } else {
             this.negativeFlag = false;
         }
 
-        int a = this.calculateRegisterP();
     }
 
     /**
@@ -1927,67 +1939,21 @@ public class CPU {
      * This opcode DECs the contents of a memory location and then CMPs the result with the A register.
      *
      * DEC {adr} + CMP {adr}
-     * @param addressingMode
-     * @param arg
+     * @param address
+     * @param value
      */
-    private void DCP(AddressingMode addressingMode, int arg) {
-        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
-        int value = this.memory.read(finalAddress);
-        value--;
-
-        value = value & 0xFF;
-
-        if(value == 0) {
-            this.zeroFlag = true;
-        } else {
-            this.zeroFlag = false;
-        }
-
-        if(value > 127) {
-            this.negativeFlag = true;
-        } else {
-            this.negativeFlag = false;
-        }
-
-        this.memory.write(finalAddress, value);
-
-
-        //CMP TODO CHECK THE CMP INSTRUCTION FOR POSSIBLE NEGATIVES, IT MAY NOT BE CORRECT RIGHT NOW!
-        value = this.memory.read(this, addressingMode, arg);
-        if(ByteUtil.getBit(value, 7) == 1) {
-            value = value - 0xFF - 1;
-        }
-        if(this.registerA == value) {
-            this.zeroFlag = true;
-        } else {
-            this.zeroFlag = false;
-        }
-
-        if(this.registerA >= value && value > 0) {
-            this.carryFlag = true;
-        } else {
-            this.carryFlag = false;
-        }
-
-
-        int t = this.registerA - value;
-        if(t > 127 || t < 0) {
-            this.negativeFlag = true;
-        } else {
-            this.negativeFlag = false;
-        }
-
+    private void DCP(int address, int value) {
+        this.DEC(address);
+        this.CMP(value);
     }
 
     /**
      * DEC - Decrement Memory
      * Subtracts one from the value held at a specified memory location setting the zero and negative flags as
      * appropriate.
-     * @param addressingMode
-     * @param arg
+     * @param finalAddress
      */
-    private void DEC(AddressingMode addressingMode, int arg) {
-        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
+    private void DEC(int finalAddress) {
         int value = this.memory.read(finalAddress);
         value--;
 
