@@ -1,7 +1,6 @@
 package org.moriano.locones;
 
 
-import com.sun.jndi.cosnaming.IiopUrl;
 import org.moriano.locones.memory.Memory;
 import org.moriano.locones.util.ByteUtil;
 import org.moriano.locones.util.LogReader;
@@ -557,7 +556,7 @@ public class CPU {
 
             case 0xDB:
                 instruction = "DCP";
-                address = AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(1), this.memory);
+                address = AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory);
                 value = this.memory.read(address);
                 this.DCP(address, value);
                 this.programCounter++;
@@ -594,6 +593,7 @@ public class CPU {
 
             //DEY
             case 0x88:
+                instruction = "DEY";
                 instruction = "DEY";
                 this.DEY();
                 this.programCounter++;
@@ -644,22 +644,22 @@ public class CPU {
             //INC
             case 0xE6:
                 instruction = "INC";
-                this.INC(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.INC(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
                 break;
             case 0xF6:
                 instruction = "INC";
-                this.INC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.INC(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
                 break;
             case 0xEE:
                 instruction = "INC";
-                this.INC(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.INC(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
                 break;
             case 0xFE:
                 instruction = "INC";
-                this.INC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.INC(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
                 break;
 
@@ -676,6 +676,50 @@ public class CPU {
                 this.INY();
                 this.programCounter++;
                 break;
+
+            //ISB Warning, unofficial code!
+            case 0xE7:
+                instruction = "ISB";
+                this.ISB(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xF7:
+                instruction = "ISB";
+                this.ISB(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xE3:
+                instruction = "ISB";
+                this.ISB(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xF3:
+                instruction = "ISB";
+                this.ISB(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xEF:
+                instruction = "ISB";
+                this.ISB(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xFF:
+                instruction = "ISB";
+                this.ISB(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory));
+                this.programCounter++;
+                break;
+
+            case 0xFB:
+                instruction = "ISB";
+                this.ISB(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory));
+                this.programCounter++;
+                break;
+
 
             //JMP
             case 0x4C:
@@ -1217,48 +1261,48 @@ public class CPU {
             //SBC
             case 0xEB: //Warning! this is really an illegal opcode, however must be implemented
                 instruction = "SBC";
-                this.SBC(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
 
             case 0xE9:
                 instruction = "SBC";
-                this.SBC(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xE5:
                 instruction = "SBC";
-                this.SBC(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xF5:
                 instruction = "SBC";
-                this.SBC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xED:
                 instruction = "SBC";
-                this.SBC(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.SBC(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xFD:
                 instruction = "SBC";
-                this.SBC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.SBC(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xF9:
                 instruction = "SBC";
-                this.SBC(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.SBC(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0xE1:
                 instruction = "SBC";
-                this.SBC(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0xF1:
                 instruction = "SBC";
-                this.SBC(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.SBC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
 
@@ -2056,8 +2100,7 @@ public class CPU {
      *
      * Adds one to the value held at a specified memory location setting the zero and negative flags as appropriate.
      */
-    private void INC(AddressingMode addressingMode, int arg) {
-        int address = addressingMode.getAddress(this, arg, this.memory);
+    private void INC(int address) {
         int value = this.memory.read(address);
         value++;
 
@@ -2127,6 +2170,17 @@ public class CPU {
         } else {
             this.negativeFlag = false;
         }
+    }
+
+    /**
+     * ISB, also known as ISC - Increment and substract
+     * Unofficial instruction
+     *
+     * This opcode INCs the contents of a memory location and then SBCs the result from the A register.
+     */
+    private void ISB(int finalAddress) {
+        this.INC(finalAddress);
+        this.SBC(this.memory.read(finalAddress));
     }
 
     /**
@@ -2553,17 +2607,14 @@ public class CPU {
      *    P.Z = (t==0) ? 1:0
      *    A = t & 0xFF
      *
-     * @param addressingMode
-     * @param arg
+     * @param value
      */
-    private void SBC(AddressingMode addressingMode, int arg) {
-
-        int value = this.memory.read(this, addressingMode, arg);
+    private void SBC(int value) {
 
         int result = this.registerA - value - (this.carryFlag ? 0 : 1);
 
          /*
-        Belive it or not...
+        Believe it or not...
 
         Formulas for the overflow flag
         There are several different formulas that can be used to compute the overflow bit. By checking the eight cases in the above table, these formulas can easily be verified.
