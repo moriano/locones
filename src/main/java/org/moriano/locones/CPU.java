@@ -174,6 +174,7 @@ public class CPU {
     public void cycle() {
         iteration++;
         int opCode = this.memory.read(this.programCounter);
+        int oldCycles = this.cycles;
         this.lastCode = opCode;
         String hex = Integer.toHexString(opCode).toUpperCase();
         String hexPC = Integer.toHexString(this.programCounter).toUpperCase();
@@ -725,10 +726,12 @@ public class CPU {
                 instruction = "JMP";
                 int arg = this.getInstructionArg(2);
                 this.JMP(AddressingMode.ABSOLUTE, arg);
+                this.cycles += 3;
                 break;
             case 0x6C:
                 instruction = "JMP";
                 this.JMP(AddressingMode.INDIRECT, this.getInstructionArg(2));
+                this.cycles += 5;
                 break;
 
             //JSR
@@ -824,6 +827,7 @@ public class CPU {
                 instruction = "LDX";
                 this.LDX(AddressingMode.INMEDIATE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
             case 0xA6:
                 instruction = "LDX";
@@ -1538,16 +1542,19 @@ public class CPU {
                 instruction = "STX";
                 this.STX(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0x96:
                 instruction = "STX";
                 this.STX(AddressingMode.ZERO_PAGE_Y, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x8E:
                 instruction = "STX";
                 this.STX(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             //STY
@@ -1635,7 +1642,7 @@ public class CPU {
         String ok = null;
         boolean stop = false;
 
-        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP)) {
+        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP, oldCycles * 3)) {
             ok = "OK";
         } else {
             stop = true;
@@ -1664,7 +1671,7 @@ public class CPU {
 
     }
 
-    private boolean checkIterationSanity(String instruction, int programCounter, int iteration, int oldA, int oldX, int oldY, int oldSP, int oldP) {
+    private boolean checkIterationSanity(String instruction, int programCounter, int iteration, int oldA, int oldX, int oldY, int oldSP, int oldP, int cycles) {
         LogStatus status = this.logReader.getLogStatus(iteration);
 
         if(status.getAddress() == programCounter &&
@@ -1673,7 +1680,8 @@ public class CPU {
                 status.getRegisterP() == oldP &&
                 status.getRegisterSP() == oldSP &&
                 status.getRegisterX() == oldX &&
-                status.getRegisterY() == oldY) {
+                status.getRegisterY() == oldY &&
+                status.getCycles() == cycles) {
             return true;
         } else {
             System.out.println("\n");
@@ -1697,6 +1705,10 @@ public class CPU {
             }
             if(status.getRegisterP() != oldP) {
                 System.out.printf("Register P does not match, expected vs current %d -- %d\n", status.getRegisterP(), oldP );
+
+            }
+            if(status.getCycles() != cycles) {
+                System.out.printf("Cycles does not match, expected vs current %d -- %d\n", status.getCycles(), cycles );
 
             }
             return false;

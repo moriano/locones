@@ -16,8 +16,9 @@ public class LogStatus {
     private int registerY;
     private int registerP;
     private int registerSP;
+    private int cycles;
 
-    public LogStatus(int address, String instruction, int registerA, int registerX, int registerY, int registerP, int registerSP) {
+    public LogStatus(int address, String instruction, int registerA, int registerX, int registerY, int registerP, int registerSP, int cycles) {
         this.address = address;
         this.instruction = instruction;
         this.registerA = registerA;
@@ -25,6 +26,11 @@ public class LogStatus {
         this.registerY = registerY;
         this.registerP = registerP;
         this.registerSP = registerSP;
+        this.cycles = cycles;
+    }
+
+    public int getCycles() {
+        return cycles;
     }
 
     public int getAddress() {
@@ -65,6 +71,7 @@ public class LogStatus {
                 ", registerY=" + registerY +
                 ", registerP=" + registerP +
                 ", registerSP=" + registerSP +
+                ", cycles=" + cycles +
                 '}';
     }
 }
