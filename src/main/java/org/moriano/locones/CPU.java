@@ -261,42 +261,42 @@ public class CPU {
             //AND
             case 0x29:
                 instruction = "AND";
-                this.AND(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.AND(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x25:
                 instruction = "AND";
-                this.AND(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.AND(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x35:
                 instruction = "AND";
-                this.AND(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.AND(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x2D:
                 instruction = "AND";
-                this.AND(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.AND(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x3D:
                 instruction = "AND";
-                this.AND(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.AND(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x39:
                 instruction = "AND";
-                this.AND(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.AND(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x21:
                 instruction = "AND";
-                this.AND(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.AND(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x31:
                 instruction = "AND";
-                this.AND(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.AND(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
 
@@ -1167,30 +1167,73 @@ public class CPU {
                 this.programCounter++;
                 break;
 
+            //RLA
+            case 0x27:
+                instruction = "RLA";
+                this.RLA(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x37:
+                instruction = "RLA";
+                this.RLA(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x23:
+                instruction = "RLA";
+                this.RLA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x33:
+                instruction = "RLA";
+                this.RLA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x2F:
+                instruction = "RLA";
+                this.RLA(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x3F:
+                instruction = "RLA";
+                this.RLA(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x3B:
+                instruction = "RLA";
+                this.RLA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
             //ROL
             case 0x2A:
                 instruction = "ROL";
-                this.ROL(AddressingMode.ACCUMULATOR, 0);
+                this.ROL(AddressingMode.ACCUMULATOR.getAddress(this, this.registerA, this.memory), true);
                 this.programCounter++;
                 break;
             case 0x26:
                 instruction = "ROL";
-                this.ROL(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.ROL(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x36:
                 instruction = "ROL";
-                this.ROL(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.ROL(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x2E:
                 instruction = "ROL";
-                this.ROL(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.ROL(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x3E:
                 instruction = "ROL";
-                this.ROL(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.ROL(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
 
@@ -1704,9 +1747,7 @@ public class CPU {
      *
      * A logical AND is performed, bit by bit, on the accumulator contents using the contents of a byte of memory.
      */
-    private void AND(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
-
+    private void AND(int value) {
         this.registerA &= value;
 
         if(this.registerA == 0) {
@@ -2520,24 +2561,38 @@ public class CPU {
     }
 
     /**
+     * RLA - ROL + AND
+     * Warning, unofficial operation code
+     *
+     * RLA ROLs the contents of a memory location and then ANDs the result with
+     * the accumulator.
+     *
+     * @param finalAddress
+     * @param useAcumulator
+     */
+    private void RLA(int finalAddress, boolean useAcumulator) {
+        this.ROL(finalAddress, useAcumulator);
+        this.AND(this.memory.read(finalAddress));
+    }
+
+    /**
      * ROL - Rotate Left
      * Move each of the bits in either A or M one place to the left. Bit 0 is filled with the current value of the
      * carry flag whilst the old bit 7 becomes the new carry flag value.
      */
-    private void ROL(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void ROL(int finalAddress, boolean useAcumulator) {
+        int value = useAcumulator ? this.registerA : this.memory.read(finalAddress);
         int result = ((value<<1) + (this.carryFlag ? 1 : 0)) & 0xFF;
 
         this.carryFlag = ByteUtil.getBit(value, 7) == 1 ? true : false;
         this.negativeFlag = result > 127;
         this.zeroFlag = result == 0 ? true : false;
 
-        if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
+        if(useAcumulator) {
             this.registerA = result;
 
         } else {
-            int address = addressingMode.getAddress(this, arg, this.memory);
-            this.memory.write(address, result);
+            this.memory.write(finalAddress, result);
         }
     }
 
