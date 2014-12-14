@@ -219,42 +219,42 @@ public class CPU {
             //ADC
             case 0x69:
                 instruction = "ADC";
-                this.ADC(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.ADC(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x65:
                 instruction = "ADC";
-                this.ADC(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.ADC(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x75:
                 instruction = "ADC";
-                this.ADC(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.ADC(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x6D:
                 instruction = "ADC";
-                this.ADC(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.ADC(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x7D:
                 instruction = "ADC";
-                this.ADC(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.ADC(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x79:
                 instruction = "ADC";
-                this.ADC(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.ADC(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x61:
                 instruction = "ADC";
-                this.ADC(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.ADC(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x71:
                 instruction = "ADC";
-                this.ADC(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.ADC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
 
@@ -1239,29 +1239,73 @@ public class CPU {
             //ROR
             case 0x6A:
                 instruction = "ROR";
-                this.ROR(AddressingMode.ACCUMULATOR, 0);
+                this.ROR(AddressingMode.ACCUMULATOR.getAddress(this, this.registerA, this.memory), true);
                 this.programCounter++;
                 break;
             case 0x66:
                 instruction = "ROR";
-                this.ROR(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.ROR(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x76:
                 instruction = "ROR";
-                this.ROR(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.ROR(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x6E:
                 instruction = "ROR";
-                this.ROR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.ROR(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x7E:
                 instruction = "ROR";
-                this.ROR(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.ROR(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
+
+            //RRA
+            case 0x67:
+                instruction = "RRA";
+                this.RRA(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x77:
+                instruction = "RRA";
+                this.RRA(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x63:
+                instruction = "RRA";
+                this.RRA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x73:
+                instruction = "RRA";
+                this.RRA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x6F:
+                instruction = "RRA";
+                this.RRA(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x7F:
+                instruction = "RRA";
+                this.RRA(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x7B:
+                instruction = "RRA";
+                this.RRA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
 
             //RTI
             case 0x40:
@@ -1727,12 +1771,10 @@ public class CPU {
      *      P.C = (t>255) ? 1:0
      *    A = t & 0xFF
      *
-     * @param addressingMode
-     * @param arg
+     * @param value
      */
-    private void ADC(AddressingMode addressingMode, int arg) {
+    private void ADC(int value) {
 
-        int value = this.memory.read(this, addressingMode, arg);
         int result = this.registerA + value + (this.carryFlag ? 1 : 0);  //TODO ---> check negative flags, if so, you have to substract mate!!
 
         /*
@@ -2634,23 +2676,38 @@ public class CPU {
      * Move each of the bits in either A or M one place to the right. Bit 7 is filled with the current value of the
      * carry flag whilst the old bit 0 becomes the new carry flag value.
      */
-    private void ROR(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void ROR(int finalAddress, boolean useAcumulator) {
+        int value = useAcumulator ? this.registerA : this.memory.read(finalAddress);
         int result = (value>>1) + (this.carryFlag ? 128 : 0);
 
         this.carryFlag = ByteUtil.getBit(value, 0) == 1 ? true : false;
         this.negativeFlag = result > 127;
         this.zeroFlag = result == 0 ? true : false;
-        if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
-            this.registerA = result;
 
+        if(useAcumulator) {
+            this.registerA = result;
         } else {
-            int address = addressingMode.getAddress(this, arg, this.memory);
-            this.memory.write(address, result);
+            this.memory.write(finalAddress, result);
             //TODO Check
             //throw new UnsupportedOperationException("Ouch!");
         }
+    }
 
+    /**
+     * RRA
+     *
+     * Warning, unofficial operation code
+     *
+     * RORs the contents of a memory location and then ADCs the result with the accumulator.
+     *
+     * RRA {adr} = ROR {adr} + ADC {adr}
+     *
+     * @param address
+     * @param useAcumulator
+     */
+    private void RRA(int address, boolean useAcumulator) {
+        this.ROR(address, useAcumulator);
+        this.ADC(this.memory.read(address));
     }
 
     /**
