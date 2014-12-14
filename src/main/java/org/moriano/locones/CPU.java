@@ -303,27 +303,27 @@ public class CPU {
             //ASL
             case 0x0A:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ACCUMULATOR, this.registerA); //TODO Check this
+                this.ASL(AddressingMode.ACCUMULATOR.getAddress(this, this.registerA, this.memory), true); //TODO Check this
                 this.programCounter++; //TODO check this
                 break;
             case 0x06:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.ASL(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x16:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.ASL(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x0E:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.ASL(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x1E:
                 instruction = "ASL";
-                this.ASL(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.ASL(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
 
@@ -1099,42 +1099,42 @@ public class CPU {
 
             //ORA
             case 0x09:
-                this.ORA(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.ORA(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 instruction = "ORA";
                 this.programCounter++;
                 break;
             case 0x05:
-                this.ORA(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.ORA(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 instruction = "ORA";
                 this.programCounter++;
                 break;
             case 0x15:
                 instruction = "ORA";
-                this.ORA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.ORA(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
                 break;
             case 0x0D:
                 instruction = "ORA";
-                this.ORA(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.ORA(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x1D:
                 instruction = "ORA";
-                this.ORA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.ORA(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x19:
                 instruction = "ORA";
-                this.ORA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.ORA(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
                 break;
             case 0x01:
-                this.ORA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.ORA(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 instruction = "ORA";
                 this.programCounter++;
                 break;
             case 0x11:
-                this.ORA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.ORA(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 instruction = "ORA";
                 this.programCounter++;
                 break;
@@ -1324,6 +1324,49 @@ public class CPU {
             case 0x78:
                 instruction = "SEI";
                 this.SEI();
+                this.programCounter++;
+                break;
+
+            //SLO Warning, unofficial code!
+            case 0x07:
+                instruction = "SLO";
+                this.SLO(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x17:
+                instruction = "SLO";
+                this.SLO(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x03:
+                instruction = "SLO";
+                this.SLO(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x13:
+                instruction = "SLO";
+                this.SLO(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x0F:
+                instruction = "SLO";
+                this.SLO(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x1F:
+                instruction = "SLO";
+                this.SLO(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x1B:
+                instruction = "SLO";
+                this.SLO(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
 
@@ -1688,23 +1731,20 @@ public class CPU {
      * (ignoring 2's complement considerations), setting the carry if the result will not fit in 8 bits.
      *
      */
-    private void ASL(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void ASL(int finalAddress, boolean useAcumulator) {
+        int value = useAcumulator ? this.registerA : this.memory.read(finalAddress);
         int result = (value << 1) & 0xFF;
 
         this.carryFlag = ByteUtil.getBit(value, 7) == 1 ? true : false;
-
-
         this.zeroFlag = result == 0 ? true : false;
         this.negativeFlag = result > 127 ? true : false;
 
-        if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
+        if(useAcumulator) {
             this.registerA = result;
 
         } else {
             //Check if this is correct mate
-            int address = addressingMode.getAddress(this, arg, this.memory);
-            this.memory.write(address, result);
+            this.memory.write(finalAddress, result);
             //throw new UnsupportedOperationException("Ouch!");
         }
 
@@ -2376,8 +2416,7 @@ public class CPU {
      *
      * An inclusive OR is performed, bit by bit, on the accumulator contents using the contents of a byte of memory.
      */
-    private void ORA(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void ORA(int value) {
 
         this.registerA = this.registerA | value;
 
@@ -2683,6 +2722,21 @@ public class CPU {
      */
     private void SEI() {
         this.interruptDisable = true;
+    }
+
+    /**
+     * SLO -
+     * Warning, unofficial operation code. Also known as ASO
+     *
+     * This opcode ASLs the contents of a memory location and then ORs the result
+     * with the accumulator.
+     *
+     * Equivalent to ASL + ORA
+     *
+     */
+    private void SLO(int finalAddress, boolean useAcumulator) {
+        this.ASL(finalAddress, useAcumulator);
+        this.ORA(this.memory.read(finalAddress));
     }
 
     /**
