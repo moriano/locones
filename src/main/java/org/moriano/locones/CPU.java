@@ -594,49 +594,48 @@ public class CPU {
             //DEY
             case 0x88:
                 instruction = "DEY";
-                instruction = "DEY";
                 this.DEY();
                 this.programCounter++;
                 break;
 
             //EOR
             case 0x49:
-                this.EOR(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.EOR(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x45:
-                this.EOR(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.EOR(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x55:
-                this.EOR(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.EOR(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x4D:
-                this.EOR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.EOR(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x5D:
-                this.EOR(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.EOR(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x59:
-                this.EOR(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.EOR(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x41:
-                this.EOR(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.EOR(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
             case 0x51:
-                this.EOR(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.EOR(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
                 break;
@@ -877,27 +876,27 @@ public class CPU {
             //LSR
             case 0x4A:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ACCUMULATOR, this.registerA); //TODO Check this
+                this.LSR(AddressingMode.ZERO_PAGE.getAddress(this, this.registerA, this.memory), true);
                 this.programCounter++; //TODO check this
                 break;
             case 0x46:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.LSR(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x56:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.LSR(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x4E:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.LSR(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
             case 0x5E:
                 instruction = "LSR";
-                this.LSR(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.LSR(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
 
@@ -1412,6 +1411,50 @@ public class CPU {
                 this.SLO(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 break;
+
+            //SRE
+            case 0x47:
+                instruction = "SRE";
+                this.SRE(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x57:
+                instruction = "SRE";
+                this.SRE(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x43:
+                instruction = "SRE";
+                this.SRE(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x53:
+                instruction = "SRE";
+                this.SRE(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x4F:
+                instruction = "SRE";
+                this.SRE(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x5F:
+                instruction = "SRE";
+                this.SRE(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
+            case 0x5B:
+                instruction = "SRE";
+                this.SRE(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.programCounter++;
+                break;
+
 
             //STA
             case 0x85:
@@ -2160,11 +2203,9 @@ public class CPU {
      * EOR - Exclusive OR
      *
      * An exclusive OR is performed, bit by bit, on the accumulator contents using the contents of a byte of memory.
-     * @param addressingMode
-     * @param arg
+     * @param value
      */
-    private void EOR(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void EOR(int value) {
 
         this.registerA ^= value;
 
@@ -2419,29 +2460,20 @@ public class CPU {
      * Each of the bits in A or M is shift one place to the right. The bit that was in bit 0 is shifted into the carry
      * flag. Bit 7 is set to zero.
      */
-    private void LSR(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void LSR(int finalAddress, boolean useAcumulator) {
+        int value = useAcumulator ? this.registerA : this.memory.read(finalAddress);
         int result = value >> 1;
 
         this.carryFlag = ByteUtil.getBit(value, 0) == 1 ? true : false;
         this.negativeFlag = false;
         this.zeroFlag = result == 0 ? true : false;
 
-        if(addressingMode.equals(AddressingMode.ACCUMULATOR)) {
+        if(useAcumulator) {
             this.registerA = result;
         } else {
             //TODO check if this correct mate!
-            int address = addressingMode.getAddress(this, arg, this.memory);
-            this.memory.write(address, result);
+            this.memory.write(finalAddress, result);
         }
-
-
-
-
-
-
-
-
     }
 
     /**
@@ -2792,6 +2824,24 @@ public class CPU {
     private void SLO(int finalAddress, boolean useAcumulator) {
         this.ASL(finalAddress, useAcumulator);
         this.ORA(this.memory.read(finalAddress));
+    }
+
+    /**
+     * SRE
+     *
+     * Warning, unofficial code
+     *
+     * SRE {adr} = LSR {adr} + EOR {adr}
+     *
+     * LSE LSRs the contents of a memory location and then EORs the result with
+     * the accumulator.
+     *
+     * @param finalAddress
+     * @param useAccumulator
+     */
+    private void SRE(int finalAddress, boolean useAccumulator) {
+        this.LSR(finalAddress, useAccumulator);
+        this.EOR(this.memory.read(finalAddress));
     }
 
     /**
