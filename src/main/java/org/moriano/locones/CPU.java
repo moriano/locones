@@ -172,6 +172,9 @@ public class CPU {
      *
      */
     public void cycle() {
+        if(this.cycles == 337) {
+            this.cycles = 0;
+        }
         iteration++;
         int opCode = this.memory.read(this.programCounter);
         int oldCycles = this.cycles;
@@ -333,6 +336,7 @@ public class CPU {
                 instruction = "BCC";
                 this.BCC(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BCS
@@ -340,6 +344,7 @@ public class CPU {
                 instruction = "BCS";
                 this.BCS(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BEQ
@@ -347,6 +352,7 @@ public class CPU {
                 instruction = "BEQ";
                 this.BEQ(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BIT
@@ -354,12 +360,14 @@ public class CPU {
                 instruction = "BIT";
                 this.BIT(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
 
             case 0x2C:
                 instruction = "BIT";
                 this.BIT(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
 
@@ -375,6 +383,7 @@ public class CPU {
                 instruction = "BNE";
                 this.BNE(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BPL
@@ -393,6 +402,7 @@ public class CPU {
                 instruction = "BVC";
                 this.BVC(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BVS
@@ -400,6 +410,7 @@ public class CPU {
                 instruction = "BVS";
                 this.BVS(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //CLC
@@ -738,6 +749,7 @@ public class CPU {
             case 0x20:
                 instruction = "JSR";
                 this.JSR(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.cycles += 6;
                 break;
 
             //LAX => Unofficial instruction
@@ -782,37 +794,44 @@ public class CPU {
                 instruction = "LDA";
                 this.LDA(AddressingMode.INMEDIATE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
             case 0xA5:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0xB5:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xAD:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xBD:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xB9:
                 instruction = "LDA";
                 this.LDA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             case 0xA1:
                 instruction = "LDA";
                 this.LDA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
 
@@ -820,6 +839,7 @@ public class CPU {
                 instruction = "LDA";
                 this.LDA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //LDX
@@ -909,6 +929,7 @@ public class CPU {
                 instruction = "NOP";
                 this.NOP();
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             case 0x1A:
@@ -1401,6 +1422,7 @@ public class CPU {
                 instruction = "SEC";
                 this.SEC();
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //SED
@@ -1509,32 +1531,39 @@ public class CPU {
                 instruction = "STA";
                 this.STA(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0x95:
                 instruction = "STA";
                 this.STA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x8D:
                 instruction = "STA";
                 this.STA(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x9D:
                 instruction = "STA";
                 this.STA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.cycles += 5;
                 break;
             case 0x99:
                 instruction = "STA";
                 this.STA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.cycles += 5;
                 break;
             case 0x81:
                 instruction = "STA";
                 this.STA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.cycles += 6;
                 break;
             case 0x91:
                 instruction = "STA";
                 this.STA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                this.cycles += 6;
                 break;
 
             //STX
@@ -1659,8 +1688,8 @@ public class CPU {
             iterationStr = " "+iteration;
         }
 
-        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s    %s\n",
-                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, ok);
+        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d   %s\n",
+                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldCycles*3, ok);
         if(!this.zeroFlag) {
             int a = 1;
         }
@@ -1896,6 +1925,7 @@ public class CPU {
     private void BCC(int arg) {
         if(!this.isCarryFlag()) {
             this.programCounter += arg;
+            this.cycles++;
         }
     }
 
@@ -1907,6 +1937,7 @@ public class CPU {
     private void BCS(int arg) {
         if(this.carryFlag) {
             this.programCounter += arg;
+            this.cycles += 1;
         }
     }
 
@@ -1917,7 +1948,13 @@ public class CPU {
      */
     private void BEQ(int arg) {
         if(this.isZeroFlag()) {
+            int oldPc = this.programCounter;
             this.programCounter += arg;
+            if(this.crossesPage(oldPc, this.programCounter)) {
+                this.cycles += 2; //TODO this only happens when page is crossed!
+            } else {
+                this.cycles++;
+            }
         }
     }
 
@@ -1973,12 +2010,23 @@ public class CPU {
      */
     private void BNE(int arg) {
         if(!this.isZeroFlag()) {
+
+            int oldPc = this.programCounter;
+
+
             //Boy, this arg could represent a negative number so...
             if(ByteUtil.getBit(arg, 7) == 1) {
                 this.programCounter += (arg - 0xFF) - 1; //TODO CHECK ALL BRANCH INSTRUCTIONS to consider negative values!!!!!
             } else {
                 this.programCounter += arg;
             }
+
+            if(this.crossesPage(oldPc, this.programCounter)) {
+                this.cycles += 2; //TODO this only happens when page is crossed!
+            } else {
+                this.cycles++;
+            }
+
         }
     }
 
@@ -2014,7 +2062,11 @@ public class CPU {
      */
     private void BVC(int arg) {
         if(!this.isOverflowFlag()) {
-            this.programCounter += arg;
+            if(this.crossesPage(this.programCounter, this.programCounter+=arg)) {
+                this.cycles +=2;
+            } else {
+                this.cycles +=1;
+            }
         }
     }
 
@@ -2026,7 +2078,13 @@ public class CPU {
      */
     private void BVS(int arg) {
         if(this.isOverflowFlag()) {
-            this.programCounter += arg;
+            if(this.crossesPage(this.programCounter, this.programCounter+=arg)) {
+                this.cycles+=2;
+            } else {
+                this.cycles+=1;
+            }
+
+
         }
     }
 
@@ -3071,6 +3129,15 @@ public class CPU {
 
     }
 
+    /**
+     * Determines whether or not two addresses are in the same page or not
+     * @param oldAddress
+     * @param newAddress
+     * @return
+     */
+    private boolean crossesPage(int oldAddress, int newAddress) {
+        return ((oldAddress & 0xFF00) != (newAddress & 0xFF00));
+    }
 
 
 
