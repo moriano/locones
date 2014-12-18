@@ -56,6 +56,7 @@ public class CPU {
     private boolean negativeFlag;
 
     private int cycles;
+    private int ppuCycles;
 
     private Memory memory;
 
@@ -172,12 +173,10 @@ public class CPU {
      *
      */
     public void cycle() {
-        if(this.cycles == 337) {
-            this.cycles = 0;
-        }
+
         iteration++;
         int opCode = this.memory.read(this.programCounter);
-        int oldCycles = this.cycles;
+
         this.lastCode = opCode;
         String hex = Integer.toHexString(opCode).toUpperCase();
         String hexPC = Integer.toHexString(this.programCounter).toUpperCase();
@@ -188,6 +187,14 @@ public class CPU {
         String oldYHex = Integer.toHexString(this.getRegisterY()).toUpperCase();
         String oldAHex = Integer.toHexString(this.getRegisterA()).toUpperCase();
         String oldSPHex = Integer.toHexString(this.registerS).toUpperCase();
+
+
+
+        if(this.cycles > 0) {
+            this.ppuCycles = this.cycles * 3;
+        }
+        int oldPPUCycles = this.ppuCycles > 341 ? this.ppuCycles - 341 : this.ppuCycles;
+
 
         int oldX = this.getRegisterX();
         int oldP = this.calculateRegisterP();
@@ -267,21 +274,25 @@ public class CPU {
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
             case 0x25:
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0x35:
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x2D:
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x3D:
                 instruction = "AND";
@@ -297,6 +308,7 @@ public class CPU {
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0x31:
                 instruction = "AND";
@@ -391,6 +403,7 @@ public class CPU {
                 instruction = "BPL";
                 this.BPL(this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //BRK
@@ -446,21 +459,25 @@ public class CPU {
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 2;
                 break;
             case 0xC5:
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0xD5:
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xCD:
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xDD:
                 instruction = "CMP";
@@ -476,6 +493,7 @@ public class CPU {
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0xD1:
                 instruction = "CMP";
@@ -1175,6 +1193,7 @@ public class CPU {
                 this.PHP();
                 instruction = "PHP";
                 this.programCounter++;
+                this.cycles += 3;
                 break;
 
             //PLA
@@ -1182,6 +1201,7 @@ public class CPU {
                 instruction = "PLA";
                 this.PLA();
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             //PLP
@@ -1189,6 +1209,7 @@ public class CPU {
                 instruction = "PLP";
                 this.PLP();
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             //RLA
@@ -1342,6 +1363,7 @@ public class CPU {
             case 0x60:
                 instruction = "RTS";
                 this.RTS();
+                this.cycles += 6;
                 break;
 
             //SAX => Unofficial instruction
@@ -1430,6 +1452,7 @@ public class CPU {
                 instruction = "SED";
                 this.SED();
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //SEI
@@ -1437,6 +1460,7 @@ public class CPU {
                 instruction = "SEI";
                 this.SEI();
                 this.programCounter++;
+                this.cycles += 2;
                 break;
 
             //SLO Warning, unofficial code!
@@ -1671,11 +1695,17 @@ public class CPU {
         String ok = null;
         boolean stop = false;
 
-        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP, oldCycles * 3)) {
+
+
+
+
+        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP, oldPPUCycles)) {
             ok = "OK";
         } else {
             stop = true;
         }
+
+
 
         String iterationStr = "";
         if(iteration < 10) {
@@ -1689,7 +1719,7 @@ public class CPU {
         }
 
         System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d   %s\n",
-                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldCycles*3, ok);
+                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldPPUCycles, ok);
         if(!this.zeroFlag) {
             int a = 1;
         }
@@ -2038,7 +2068,22 @@ public class CPU {
      */
     private void BPL(int arg) {
         if(!this.isNegativeFlag()) {
-            this.programCounter += arg;
+
+            int oldPc = this.programCounter;
+
+
+            //Boy, this arg could represent a negative number so...
+            if(ByteUtil.getBit(arg, 7) == 1) {
+                this.programCounter += (arg - 0xFF) - 1; //TODO CHECK ALL BRANCH INSTRUCTIONS to consider negative values!!!!!
+            } else {
+                this.programCounter += arg;
+            }
+
+            if(this.crossesPage(oldPc, this.programCounter)) {
+                this.cycles += 2; //TODO this only happens when page is crossed!
+            } else {
+                this.cycles++;
+            }
         }
     }
 
