@@ -618,21 +618,25 @@ public class CPU {
                 instruction = "DEC";
                 this.DEC(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
             case 0xD6:
                 instruction = "DEC";
                 this.DEC(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0xCE:
                 instruction = "DEC";
                 this.DEC(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0xDE:
                 instruction = "DEC";
                 this.DEC(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             //DEX
@@ -703,21 +707,25 @@ public class CPU {
                 instruction = "INC";
                 this.INC(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
             case 0xF6:
                 instruction = "INC";
                 this.INC(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0xEE:
                 instruction = "INC";
                 this.INC(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0xFE:
                 instruction = "INC";
                 this.INC(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory));
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             //INX
@@ -1680,16 +1688,19 @@ public class CPU {
                 instruction = "STY";
                 this.STY(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 3;
                 break;
             case 0x94:
                 instruction = "STY";
                 this.STY(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x8C:
                 instruction = "STY";
                 this.STY(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             //TAX
@@ -2646,9 +2657,6 @@ public class CPU {
         } else {
             this.negativeFlag = false;
         }
-
-        int a = this.calculateRegisterP();
-
     }
 
     /**
