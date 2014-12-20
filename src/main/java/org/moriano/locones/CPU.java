@@ -1308,26 +1308,31 @@ public class CPU {
                 instruction = "ROL";
                 this.ROL(AddressingMode.ACCUMULATOR.getAddress(this, this.registerA, this.memory), true);
                 this.programCounter++;
+                this.cycles += 2;
                 break;
             case 0x26:
                 instruction = "ROL";
                 this.ROL(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 5;
                 break;
             case 0x36:
                 instruction = "ROL";
                 this.ROL(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0x2E:
                 instruction = "ROL";
                 this.ROL(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
             case 0x3E:
                 instruction = "ROL";
                 this.ROL(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             //ROR
@@ -3261,7 +3266,7 @@ public class CPU {
      * @return
      */
     private boolean crossesPage(int oldAddress, int newAddress) {
-        return ((oldAddress & 0xFF00) != (newAddress & 0xFF00));
+        return false; //((oldAddress & 0xFF00) != (newAddress & 0xFF00));
     }
 
 
