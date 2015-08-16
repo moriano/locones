@@ -159,6 +159,9 @@ public enum AddressingMode {
                 int lower = memory.read((argument + currentCPU.getRegisterX() ) & 0xFF);
                 int higher = memory.read((argument + currentCPU.getRegisterX() + 1) & 0xFF) << 8;
                 int finalAddress = higher | lower;
+
+
+
                 return finalAddress;
                 //throw new UnsupportedOperationException("Indexed indirect addressing not supported!");
 
@@ -175,7 +178,23 @@ public enum AddressingMode {
                 //throw new UnsupportedOperationException("Implemente Indirect indexed addressing mode!");
                 int myLower = memory.read(argument);
                 int myHigher = memory.read((argument + 1) & 0xFF) << 8;
-                int myMemory = ((myHigher | myLower) + currentCPU.getRegisterY() ) & 0xFFFF;
+
+                int myBase = myHigher | myLower;
+
+                int myMemory = (myBase + currentCPU.getRegisterY()) & 0xFFFF;
+
+                /*
+                Page crossing! For some reason ALL the instructions using this address mode will increase the cycles
+                by one if a page crossing occurs, so it makes sense to code it here.
+
+                A page crossing occurs when the end address is NOT in the same page as the original address, page size
+                in NES CPU is 256 bytes (2^8 = 0XFF), so checking if the page has cross is as easy as checking if the
+                bits are all the same except the lower two :)
+                 */
+                if((myBase & 0xFF00) != (myMemory & 0xFF00)) {
+                    currentCPU.incrementCycles(1);
+                }
+
                 return myMemory;
 
                 //return argument + currentCPU.getRegisterY();

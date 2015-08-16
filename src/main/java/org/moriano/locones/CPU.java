@@ -99,6 +99,11 @@ public class CPU {
         return this.programCounter;
     }
 
+    public void incrementCycles(int i) {
+        this.cycles += i;
+    }
+
+
     public void setMemory(Memory memory) {
         this.memory = memory;
     }
@@ -276,6 +281,7 @@ public class CPU {
                 instruction = "ADC";
                 this.ADC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //AND
@@ -323,6 +329,7 @@ public class CPU {
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //ASL
@@ -514,6 +521,7 @@ public class CPU {
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //CPX
@@ -700,6 +708,7 @@ public class CPU {
                 this.EOR(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 instruction = "EOR";
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //INC
@@ -848,44 +857,44 @@ public class CPU {
             //LDA
             case 0xA9:
                 instruction = "LDA";
-                this.LDA(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.LDA(this.getInstructionArg(1), true);
                 this.programCounter++;
                 this.cycles += 2;
                 break;
             case 0xA5:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.LDA(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 this.cycles += 3;
                 break;
             case 0xB5:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.LDA(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xAD:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.LDA(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xBD:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.LDA(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xB9:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.LDA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
 
             case 0xA1:
                 instruction = "LDA";
-                this.LDA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.LDA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -893,7 +902,12 @@ public class CPU {
 
             case 0xB1:
                 instruction = "LDA";
-                this.LDA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                int tmpAddress = this.getInstructionArg(1);
+                int newAddress = AddressingMode.INDIRECT_INDEXED.getAddress(this, tmpAddress, this.memory);
+                this.LDA(newAddress, false);
+                /*if(this.crossesPage(tmpAddress, newAddress)) {
+                    this.cycles++;
+                }*/
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -901,31 +915,31 @@ public class CPU {
             //LDX
             case 0xA2:
                 instruction = "LDX";
-                this.LDX(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.LDX(this.getInstructionArg(1), true);
                 this.programCounter++;
                 this.cycles += 2;
                 break;
             case 0xA6:
                 instruction = "LDX";
-                this.LDX(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.LDX(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 this.cycles += 3;
                 break;
             case 0xB6:
                 instruction = "LDX";
-                this.LDX(AddressingMode.ZERO_PAGE_Y, this.getInstructionArg(1));
+                this.LDX(AddressingMode.ZERO_PAGE_Y.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xAE:
                 instruction = "LDX";
-                this.LDX(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.LDX(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xBE:
                 instruction = "LDX";
-                this.LDX(AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2));
+                this.LDX(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
                 break;
 
@@ -1234,6 +1248,7 @@ public class CPU {
                 this.ORA(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 instruction = "ORA";
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //PHA
@@ -1510,6 +1525,7 @@ public class CPU {
                 instruction = "SBC";
                 this.SBC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             //SEC
@@ -2062,7 +2078,7 @@ public class CPU {
         if(this.isZeroFlag()) {
             int oldPc = this.programCounter;
             this.programCounter += arg;
-            if(this.crossesPage(oldPc, this.programCounter)) {
+            if(this.isNewPage(oldPc, this.programCounter)) {
                 this.cycles += 2; //TODO this only happens when page is crossed!
             } else {
                 this.cycles++;
@@ -2120,7 +2136,7 @@ public class CPU {
                 this.programCounter += arg;
             }
 
-            if(this.crossesPage(oldPc, this.programCounter)) {
+            if(this.isNewPage(oldPc, this.programCounter)) {
                 this.cycles += 2; //TODO this only happens when page is crossed!
             } else {
                 this.cycles++;
@@ -2147,7 +2163,7 @@ public class CPU {
                 this.programCounter += arg;
             }
 
-            if(this.crossesPage(oldPc, this.programCounter)) {
+            if(this.isNewPage(oldPc, this.programCounter)) {
                 this.cycles += 2; //TODO this only happens when page is crossed!
             } else {
                 this.cycles++;
@@ -2175,7 +2191,7 @@ public class CPU {
                 this.programCounter += arg;
             }
 
-            if(this.crossesPage(oldPc, this.programCounter)) {
+            if(this.isNewPage(oldPc, this.programCounter)) {
                 this.cycles += 2; //TODO this only happens when page is crossed!
             } else {
                 this.cycles++;
@@ -2203,7 +2219,7 @@ public class CPU {
      */
     private void BVC(int arg) {
         if(!this.isOverflowFlag()) {
-            if(this.crossesPage(this.programCounter, this.programCounter+=arg)) {
+            if(this.isNewPage(this.programCounter, this.programCounter += arg)) {
                 this.cycles +=2;
             } else {
                 this.cycles +=1;
@@ -2219,7 +2235,7 @@ public class CPU {
      */
     private void BVS(int arg) {
         if(this.isOverflowFlag()) {
-            if(this.crossesPage(this.programCounter, this.programCounter+=arg)) {
+            if(this.isNewPage(this.programCounter, this.programCounter += arg)) {
                 this.cycles+=2;
             } else {
                 this.cycles+=1;
@@ -2293,6 +2309,7 @@ public class CPU {
         } else {
             this.negativeFlag = false;
         }
+
 
     }
 
@@ -2633,8 +2650,9 @@ public class CPU {
      * @param arg
      */
     private void LAX(AddressingMode addressingMode, int arg) {
-        this.LDA(addressingMode, arg);
-        this.LDX(addressingMode, arg);
+        int finalAddress = addressingMode.getAddress(this, arg, this.memory);
+        this.LDA(finalAddress, false);
+        this.LDX(finalAddress, false);
     }
 
     /**
@@ -2642,8 +2660,9 @@ public class CPU {
      *
      * Loads a byte of memory into the accumulator setting the zero and negative flags as appropriate.
      */
-    private void LDA(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void LDA(int finalAddress, boolean useAddressAsValue) {
+
+        int value = useAddressAsValue ? finalAddress : this.memory.read(finalAddress);
 
         this.registerA = value;
         if(this.registerA == 0) {
@@ -2664,8 +2683,8 @@ public class CPU {
      *
      * Loads a byte of memory into the X register setting the zero and negative flags as appropriate.
      */
-    private void LDX(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void LDX(int finalAddress, boolean useAddressAsValue) {
+        int value = useAddressAsValue ? finalAddress : this.memory.read(finalAddress);
 
         this.registerX = value;
         if(this.registerX == 0) {
@@ -3268,13 +3287,25 @@ public class CPU {
     }
 
     /**
-     * Determines whether or not two addresses are in the same page or not
+     * Determines whether or not an address is in a new page
+     * @param oldAddress
+     * @param newAddress
+     * @return
+     */
+    private boolean isNewPage(int oldAddress, int newAddress) {
+        return false; //((oldAddress & 0xFF00) != (newAddress & 0xFF00)); //TODO, not too sure about this
+    }
+
+    /**
+     * Determines whether or not two addresses cross a page or not.
+     *
+     * Page crossing means the high byte of an address doesn't match the high byte of another
      * @param oldAddress
      * @param newAddress
      * @return
      */
     private boolean crossesPage(int oldAddress, int newAddress) {
-        return false; //((oldAddress & 0xFF00) != (newAddress & 0xFF00));
+        return ((oldAddress & 0xFF00) != (newAddress & 0xFF00));
     }
 
 
