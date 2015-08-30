@@ -316,8 +316,10 @@ public class CPU {
                 break;
             case 0x39:
                 instruction = "AND";
-                this.AND(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
+
+                this.AND(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory, true)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x21:
                 instruction = "AND";
@@ -887,7 +889,7 @@ public class CPU {
                 break;
             case 0xB9:
                 instruction = "LDA";
-                this.LDA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.LDA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory, true), false);
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -1237,6 +1239,7 @@ public class CPU {
                 instruction = "ORA";
                 this.ORA(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x01:
                 this.ORA(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));

@@ -33,7 +33,11 @@ public enum AddressingMode {
         this.id = id;
     }
 
-    public int getAddress(CPU currentCPU, int argument, Memory memory){
+    public int getAddress(CPU currentCPU, int argument, Memory memory) {
+        return this.getAddress(currentCPU, argument, memory, false);
+    }
+
+    public int getAddress(CPU currentCPU, int argument, Memory memory, boolean checkPageCross){
         //TODO this is confusing and seems to SUCK!!
         switch (this) {
             case IMPLICIT:
@@ -108,7 +112,13 @@ public enum AddressingMode {
                 by taking the 16 bit address from the instruction and added the contents of the X register. For example
                 if X contains $92 then an STA $2000,X instruction will store the accumulator at $2092 (e.g. $2000 + $92).
                  */
-                return (argument + currentCPU.getRegisterX()) & 0xFFFF;
+                int resultAbsoluteX = (argument + currentCPU.getRegisterX()) & 0xFFFF;
+
+                //Page cross!
+                if((resultAbsoluteX & 0xFF00) != (argument & 0xFF00)) {
+                    currentCPU.incrementCycles(1);
+                }
+                return resultAbsoluteX;
             case ABSOLUTE_Y:
                 /*
                 Absolute Y ==> Not used yet
@@ -116,7 +126,13 @@ public enum AddressingMode {
                 of the Y register added to the 16 bit address from the instruction.
                  */
                 //throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
-                return (argument + currentCPU.getRegisterY()) & 0xFFFF;
+                int result = (argument + currentCPU.getRegisterY()) & 0xFFFF;
+
+                //Page cross!
+                if((result & 0xFF00) != (argument & 0xFF00)) {
+                    currentCPU.incrementCycles(1);
+                }
+                return result;
             case INDIRECT:
                 /*
                 Indirect ==> Not used yet
