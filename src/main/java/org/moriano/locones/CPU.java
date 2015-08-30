@@ -268,8 +268,9 @@ public class CPU {
                 break;
             case 0x79:
                 instruction = "ADC";
-                this.ADC(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
+                this.ADC(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory, true)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x61:
                 instruction = "ADC";
@@ -510,8 +511,9 @@ public class CPU {
                 break;
             case 0xD9:
                 instruction = "CMP";
-                this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
+                this.CMP(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory, true)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xC1:
                 instruction = "CMP";
@@ -696,9 +698,10 @@ public class CPU {
                 this.programCounter++;
                 break;
             case 0x59:
-                this.EOR(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
+                this.EOR(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory,  true)));
                 instruction = "EOR";
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x41:
                 this.EOR(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
@@ -974,6 +977,7 @@ public class CPU {
                 this.LDY(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
                 instruction = "LDY";
                 this.programCounter++;
+                this.cycles += 4;
                 break;
 
             //LSR
@@ -1515,8 +1519,9 @@ public class CPU {
                 break;
             case 0xF9:
                 instruction = "SBC";
-                this.SBC(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2)));
+                this.SBC(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory, true)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xE1:
                 instruction = "SBC";
@@ -2066,9 +2071,15 @@ public class CPU {
      * @param arg
      */
     private void BCS(int arg) {
+        int initial = this.programCounter;
         if(this.carryFlag) {
             this.programCounter += arg;
             this.cycles += 1;
+
+            //Page crossed!
+            if((initial & 0xFF00) != (this.programCounter & 0xFF00)) {
+                this.cycles += 2;
+            }
         }
     }
 
@@ -2706,7 +2717,7 @@ public class CPU {
 
     /**
      * LDY - Load Y Register
-     *
+     * TODO MORIANO ==> Consider chancing the signature of this function to receive the value directly, so cycle counting is easier.
      * Loads a byte of memory into the Y register setting the zero and negative flags as appropriate.
      */
     private void LDY(AddressingMode addressingMode, int arg) {
