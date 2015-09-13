@@ -64,12 +64,16 @@ public class Memory {
     }
 
     public int read(CPU cpu, AddressingMode addresingMode, int value) {
-        if(addresingMode == AddressingMode.ACCUMULATOR) {
+        return this.read(cpu, addresingMode, value, true);
+    }
+
+    public int read(CPU cpu, AddressingMode addressingMode, int value, boolean checkPageCross) {
+        if(addressingMode == AddressingMode.ACCUMULATOR) {
             return cpu.getRegisterA();
-        } else if(addresingMode == AddressingMode.INMEDIATE) {
+        } else if(addressingMode == AddressingMode.INMEDIATE) {
             return value;
         } else {
-            int address = addresingMode.getAddress(cpu, value, this);
+            int address = addressingMode.getAddress(cpu, value, this, checkPageCross);
             return this.read(address);
         }
     }

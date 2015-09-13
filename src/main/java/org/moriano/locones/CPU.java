@@ -265,6 +265,7 @@ public class CPU {
                 instruction = "ADC";
                 this.ADC(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x79:
                 instruction = "ADC";
@@ -314,6 +315,7 @@ public class CPU {
                 instruction = "AND";
                 this.AND(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x39:
                 instruction = "AND";
@@ -508,6 +510,7 @@ public class CPU {
                 instruction = "CMP";
                 this.CMP(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xD9:
                 instruction = "CMP";
@@ -696,6 +699,7 @@ public class CPU {
                 this.EOR(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 instruction = "EOR";
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x59:
                 this.EOR(this.memory.read(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory,  true)));
@@ -950,31 +954,31 @@ public class CPU {
 
             //LDY
             case 0xA0:
-                this.LDY(AddressingMode.INMEDIATE, this.getInstructionArg(1));
+                this.LDY(this.memory.read(this, AddressingMode.INMEDIATE, this.getInstructionArg(1)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 2;
                 break;
             case 0xA4:
-                this.LDY(AddressingMode.ZERO_PAGE, this.getInstructionArg(1));
+                this.LDY(this.memory.read(this, AddressingMode.ZERO_PAGE, this.getInstructionArg(1)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 3;
                 break;
             case 0xB4:
-                this.LDY(AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1));
+                this.LDY(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xAC:
-                this.LDY(AddressingMode.ABSOLUTE, this.getInstructionArg(2));
+                this.LDY(this.memory.read(this, AddressingMode.ABSOLUTE, this.getInstructionArg(2)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 4;
                 break;
             case 0xBC:
-                this.LDY(AddressingMode.ABSOLUTE_X, this.getInstructionArg(2));
+                this.LDY(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 4;
@@ -1238,6 +1242,7 @@ public class CPU {
                 instruction = "ORA";
                 this.ORA(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0x19:
                 instruction = "ORA";
@@ -1516,6 +1521,7 @@ public class CPU {
                 instruction = "SBC";
                 this.SBC(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
                 this.programCounter++;
+                this.cycles += 4;
                 break;
             case 0xF9:
                 instruction = "SBC";
@@ -2671,7 +2677,8 @@ public class CPU {
 
     /**
      * LDA - Load Accumulator
-     *
+     * //TODO MORIANO => Consider changing this method signature to receive the value directly, so it is easier to
+     * count cycles
      * Loads a byte of memory into the accumulator setting the zero and negative flags as appropriate.
      */
     private void LDA(int finalAddress, boolean useAddressAsValue) {
@@ -2720,8 +2727,7 @@ public class CPU {
      * TODO MORIANO ==> Consider chancing the signature of this function to receive the value directly, so cycle counting is easier.
      * Loads a byte of memory into the Y register setting the zero and negative flags as appropriate.
      */
-    private void LDY(AddressingMode addressingMode, int arg) {
-        int value = this.memory.read(this, addressingMode, arg);
+    private void LDY(int value) {
 
         this.registerY = value;
         if(this.registerY == 0) {

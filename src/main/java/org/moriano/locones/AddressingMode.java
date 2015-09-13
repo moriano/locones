@@ -114,9 +114,11 @@ public enum AddressingMode {
                  */
                 int resultAbsoluteX = (argument + currentCPU.getRegisterX()) & 0xFFFF;
 
-                //Page cross!
-                if((resultAbsoluteX & 0xFF00) != (argument & 0xFF00)) {
-                    currentCPU.incrementCycles(1);
+                if(checkPageCross) {
+                    //Page cross!
+                    if ((resultAbsoluteX & 0xFF00) != (argument & 0xFF00)) {
+                        currentCPU.incrementCycles(1);
+                    }
                 }
                 return resultAbsoluteX;
             case ABSOLUTE_Y:
@@ -128,9 +130,11 @@ public enum AddressingMode {
                 //throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
                 int result = (argument + currentCPU.getRegisterY()) & 0xFFFF;
 
-                //Page cross!
-                if((result & 0xFF00) != (argument & 0xFF00)) {
-                    currentCPU.incrementCycles(1);
+                if(checkPageCross) {
+                    //Page cross!
+                    if ((result & 0xFF00) != (argument & 0xFF00)) {
+                        currentCPU.incrementCycles(1);
+                    }
                 }
                 return result;
             case INDIRECT:
