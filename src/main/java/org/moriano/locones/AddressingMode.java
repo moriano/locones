@@ -211,8 +211,10 @@ public enum AddressingMode {
                 in NES CPU is 256 bytes (2^8 = 0XFF), so checking if the page has cross is as easy as checking if the
                 bits are all the same except the lower two :)
                  */
-                if((myBase & 0xFF00) != (myMemory & 0xFF00)) {
-                    currentCPU.incrementCycles(1);
+                if(checkPageCross) {
+                    if ((myBase & 0xFF00) != (myMemory & 0xFF00)) {
+                        currentCPU.incrementCycles(1);
+                    }
                 }
 
                 return myMemory;
