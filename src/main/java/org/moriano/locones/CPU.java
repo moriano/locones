@@ -1338,42 +1338,49 @@ public class CPU {
                 instruction = "RLA";
                 this.RLA(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             case 0x37:
                 instruction = "RLA";
                 this.RLA(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x23:
                 instruction = "RLA";
                 this.RLA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 8;
                 break;
 
             case 0x33:
                 instruction = "RLA";
                 this.RLA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
                 this.programCounter++;
+                this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
 
             case 0x2F:
                 instruction = "RLA";
                 this.RLA(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x3F:
                 instruction = "RLA";
                 this.RLA(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             case 0x3B:
                 instruction = "RLA";
                 this.RLA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             //ROL
@@ -1613,42 +1620,49 @@ public class CPU {
                 instruction = "SLO";
                 this.SLO(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             case 0x17:
                 instruction = "SLO";
                 this.SLO(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x03:
                 instruction = "SLO";
                 this.SLO(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 8;
                 break;
 
             case 0x13:
                 instruction = "SLO";
                 this.SLO(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
                 this.programCounter++;
+                this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
 
             case 0x0F:
                 instruction = "SLO";
                 this.SLO(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x1F:
                 instruction = "SLO";
                 this.SLO(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             case 0x1B:
                 instruction = "SLO";
                 this.SLO(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             //SRE
@@ -1656,42 +1670,49 @@ public class CPU {
                 instruction = "SRE";
                 this.SRE(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             case 0x57:
                 instruction = "SRE";
                 this.SRE(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x43:
                 instruction = "SRE";
                 this.SRE(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 8;
                 break;
 
             case 0x53:
                 instruction = "SRE";
                 this.SRE(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
                 this.programCounter++;
+                this.cycles += 8;
                 break;
 
             case 0x4F:
                 instruction = "SRE";
                 this.SRE(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x5F:
                 instruction = "SRE";
                 this.SRE(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             case 0x5B:
                 instruction = "SRE";
                 this.SRE(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
 
