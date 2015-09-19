@@ -1452,42 +1452,49 @@ public class CPU {
                 instruction = "RRA";
                 this.RRA(AddressingMode.ZERO_PAGE.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 5;
                 break;
 
             case 0x77:
                 instruction = "RRA";
                 this.RRA(AddressingMode.ZERO_PAGE_X.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x63:
                 instruction = "RRA";
                 this.RRA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
                 this.programCounter++;
+                this.cycles += 8;
                 break;
 
             case 0x73:
                 instruction = "RRA";
                 this.RRA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
                 this.programCounter++;
+                this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
 
             case 0x6F:
                 instruction = "RRA";
                 this.RRA(AddressingMode.ABSOLUTE.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 6;
                 break;
 
             case 0x7F:
                 instruction = "RRA";
                 this.RRA(AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
             case 0x7B:
                 instruction = "RRA";
                 this.RRA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
                 this.programCounter++;
+                this.cycles += 7;
                 break;
 
 
@@ -1691,7 +1698,7 @@ public class CPU {
                 instruction = "SRE";
                 this.SRE(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
                 this.programCounter++;
-                this.cycles += 8;
+                this.cycles += 7; //TODO moriano documentation states 8 cycles...
                 break;
 
             case 0x4F:
@@ -1965,6 +1972,7 @@ public class CPU {
      * @param totalBytes
      * @return
      */
+    //TODO Moriano consider incrementing PC here instead on each instruction...
     private int getInstructionArg(int totalBytes) {
         if(totalBytes == 1) {
             int arg = this.memory.read(this.programCounter + 1);
@@ -2158,11 +2166,23 @@ public class CPU {
      * @param arg
      */
     private void BEQ(int arg) {
+        /*
+        Now, here, is the trick.
+        There is a penalty for crossing page, if a page is crossing, it will cost 2 cycles instead
+        of 1 cycle.
+
+        BUT! this happens ONLY after the instruction itself. While coding this I encounter a tricky
+        problem that is very well described and solved here
+
+        http://forums.nesdev.com/viewtopic.php?t=8243
+
+
+         */
         if(this.isZeroFlag()) {
             int oldPc = this.programCounter;
             this.programCounter += arg;
-            if(this.isNewPage(oldPc, this.programCounter)) {
-                this.cycles += 2; //TODO this only happens when page is crossed!
+            if(this.isNewPage(oldPc + 1, this.programCounter + 1)) {
+                this.cycles += 2; //TODO Moriano possibly the rest of the branching instructions are affected
             } else {
                 this.cycles++;
             }
@@ -2738,7 +2758,6 @@ public class CPU {
 
     /**
      * LDA - Load Accumulator
-     * //TODO MORIANO => Consider changing this method signature to receive the value directly, so it is easier to
      * count cycles
      * Loads a byte of memory into the accumulator setting the zero and negative flags as appropriate.
      */
@@ -2782,7 +2801,6 @@ public class CPU {
 
     /**
      * LDY - Load Y Register
-     * TODO MORIANO ==> Consider chancing the signature of this function to receive the value directly, so cycle counting is easier.
      * Loads a byte of memory into the Y register setting the zero and negative flags as appropriate.
      */
     private void LDY(int value) {
@@ -3371,7 +3389,10 @@ public class CPU {
      * @return
      */
     private boolean isNewPage(int oldAddress, int newAddress) {
-        return false; //((oldAddress & 0xFF00) != (newAddress & 0xFF00)); //TODO, not too sure about this
+        int oldPage = oldAddress & 0xFF00;
+        int newPage = newAddress & 0xFF00;
+
+        return oldPage != newPage;
     }
 
     /**
