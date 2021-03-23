@@ -38,10 +38,11 @@ public class LogReader {
             String rawRegisterSP = line.substring(71, 73);
             String instruction = line.substring(16, 19);
             int cycles = Integer.parseInt(line.substring(78, 81).replace(" ", ""));
+            int scanLines = Integer.parseInt(line.substring(85));
 
             LogStatus logStatus = new LogStatus(Integer.valueOf(rawAddress, 16) , instruction, Integer.valueOf(rawRegisterA, 16),
                     Integer.valueOf(rawRegisterX, 16), Integer.valueOf(rawRegisterY, 16), Integer.valueOf(rawRegisterP, 16),
-                    Integer.valueOf(rawRegisterSP, 16), cycles);
+                    Integer.valueOf(rawRegisterSP, 16), cycles, scanLines);
             log.put(lineNo, logStatus);
 
             lineNo++;

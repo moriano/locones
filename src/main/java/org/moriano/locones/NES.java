@@ -17,11 +17,14 @@ public class NES {
     private static final Logger log = LoggerFactory.getLogger(NES.class);
     private CPU cpu = new CPU();
     private Memory memory;
+    private PPU ppu;
 
     public NES(Cartridge cartridge) {
         log.info("Emulating with cart ==> " + cartridge);
         this.memory = new Memory(cartridge);
+        this.ppu = new PPU(memory);
         this.cpu.setMemory(memory);
+        this.cpu.setPpu(ppu);
     }
 
     public void startEmulation() {

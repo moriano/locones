@@ -59,6 +59,7 @@ public class CPU {
     private int ppuCycles;
 
     private Memory memory;
+    private PPU ppu;
 
 
     private int lastCode = 0;
@@ -92,6 +93,10 @@ public class CPU {
         this.registerY = 0;
         this.registerS = 0xFD;
         this.programCounter = 0xC000;
+    }
+
+    public void setPpu(PPU ppu) {
+        this.ppu = ppu;
     }
 
     public int incrementProgramCounter() {
@@ -175,7 +180,7 @@ public class CPU {
      *
      * 1-Read from memory and fetch the operation code
      * 2-Interpret the operation code and fetch the argument (if needed)
-     * 3-Execute the instruction, that may or may not alter the CPU and memory statys
+     * 3-Execute the instruction, that may or may not alter the CPU and memory status
      *
      *
      */
@@ -196,6 +201,9 @@ public class CPU {
         String oldAHex = Integer.toHexString(this.getRegisterA()).toUpperCase();
         String oldSPHex = Integer.toHexString(this.registerS).toUpperCase();
 
+        this.ppu.cycle();
+        this.ppu.cycle();
+        this.ppu.cycle();
         this.ppuCycles = fragmentPPUCycles + (this.cycles * 3);
         if(this.ppuCycles >= 341) {
             this.ppuCycles = this.ppuCycles - 341;
@@ -203,7 +211,9 @@ public class CPU {
             fragmentPPUCycles = this.ppuCycles;
         }
 
+        int oldScanLine = 42;
         int oldPPUCycles = this.ppuCycles >= 341 ? this.ppuCycles - 341 : this.ppuCycles;
+
 
         int oldX = this.getRegisterX();
         int oldP = this.calculateRegisterP();
@@ -1900,8 +1910,8 @@ public class CPU {
             iterationStr = " "+iteration;
         }
 
-        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d   %s\n",
-                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldPPUCycles, ok);
+        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d SL:%s\t%s\n",
+                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldPPUCycles, oldScanLine, ok);
         if(!this.zeroFlag) {
             int a = 1;
         }

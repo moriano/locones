@@ -25,6 +25,7 @@ public class Cartridge {
 
     private Cartridge(int[] rawBytes) {
         this.cartrigdeHeader = new CartrigdeHeader(rawBytes);
+        log.info("Cartridge header " + this.cartrigdeHeader);
 
         int startPosition = 16; //Header is 16 bytes
         if(this.cartrigdeHeader.containsTrainer()) {

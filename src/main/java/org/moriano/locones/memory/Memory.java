@@ -33,7 +33,7 @@ import org.moriano.locones.cartridge.Cartridge;
  *   ($1A00 - $1FFF)     1024                RAM
  *
  *   $2000 - $2007       8 bytes             Input / Output registers
- *   $2008 - $3FFF       8184 bytes          Mirror of $2000-$2007 (mulitple times)
+ *   $2008 - $3FFF       8184 bytes          Mirror of $2000-$2007 (multiple times)
  *
  *   $4000 - $401F       32 bytes            Input / Output registers
  *   $4020 - $5FFF       8160 bytes          Expansion ROM - Used with Nintendo's MMC5 to expand the capabilities of VRAM.
@@ -56,6 +56,10 @@ public class Memory {
     bitwise AND is enough, using address 0x1FFF (previous value of 0x2000
      */
     private final MainMemory mainMemory = new MainMemory();
+
+    private final APUMemory apuMemory = new APUMemory();
+    private final PPUMemory ppuMemory = new PPUMemory();
+
 
     private Cartridge cartridge;
 
@@ -83,9 +87,14 @@ public class Memory {
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
             return this.mainMemory.getFromAddress(address & 0x7FF);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
-            throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet");
+            //throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet, use the PPU!");
+            return this.ppuMemory.getFromAddress(address);
+
         } else if(address <= 0x401F) { //Input/Output registers
-            throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet");
+            return this.apuMemory.getFromAddress(address);
+            //throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet");
+        } else if (address <= 0x401F) {
+            throw new UnsupportedOperationException("We are not supposed to be reading from " + Integer.toHexString(address) + "[" + address + "]");
         } else if(address <= 0x5FFF) { //Expansion ROM - Used with Nintendo's MMC5 to expand the capabilities of VRAM.
             throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet");
         } else if(address <= 0x7FFF) { //SRAM - Save Ram used to save data between game plays.
@@ -95,7 +104,6 @@ public class Memory {
             int value = this.cartridge.readPRG(finalAddres);
             return value;
         } else if(address <= 0xFFFF) { //PRG-ROM upper bank - executable code
-
             int realAddress = address - 0xC000;
             int value = this.cartridge.readPRG(realAddress);
 
@@ -103,7 +111,7 @@ public class Memory {
         } else if(address <= 0x10000) {
             return this.cartridge.readPRG(address & 0x3FFF);
         } else {
-            throw new IllegalArgumentException("Impossible to read from address " + address);
+            throw new IllegalArgumentException("Impossible to read from address " + Integer.toHexString(address) + " [" + address + "]");
         }
     }
 
@@ -175,6 +183,15 @@ public class Memory {
         }
         if(address <= 0x1FFF) {
             this.mainMemory.set(address & 0x7FF, value);
+        } else if(address <=  0x3FFF) {
+            this.ppuMemory.set(address, value);
+            throw new IllegalArgumentException("You need to implement the PPU to write to " + Integer.toHexString(address) + "[" + address + "]");
+        } else if (address <= 0X4017) {
+            this.apuMemory.set(address, value); // TODO moriano check this (should be all good)
+            // throw new IllegalArgumentException("You need to implement the APUMemory and I/O registers to write to " + Integer.toHexString(address) + "[" + address + "]");
+        } else if (address <= 0xFFFF) {
+            throw new IllegalArgumentException("You need to cartridge space to write to " + Integer.toHexString(address) + "[" + address + "]");
+
         } else {
             throw new IllegalArgumentException("Impossible to write to address " + address);
         }

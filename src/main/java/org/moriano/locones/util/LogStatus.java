@@ -17,8 +17,9 @@ public class LogStatus {
     private int registerP;
     private int registerSP;
     private int cycles;
+    private int scanLine;
 
-    public LogStatus(int address, String instruction, int registerA, int registerX, int registerY, int registerP, int registerSP, int cycles) {
+    public LogStatus(int address, String instruction, int registerA, int registerX, int registerY, int registerP, int registerSP, int cycles, int scanLine) {
         this.address = address;
         this.instruction = instruction;
         this.registerA = registerA;
@@ -27,6 +28,7 @@ public class LogStatus {
         this.registerP = registerP;
         this.registerSP = registerSP;
         this.cycles = cycles;
+        this.scanLine = scanLine;
     }
 
     public int getCycles() {
@@ -61,6 +63,10 @@ public class LogStatus {
         return registerSP;
     }
 
+    public int getScanLine() {
+        return scanLine;
+    }
+
     @Override
     public String toString() {
         return "LogStatus{" +
@@ -72,6 +78,7 @@ public class LogStatus {
                 ", registerP=" + registerP +
                 ", registerSP=" + registerSP +
                 ", cycles=" + cycles +
+                ", scanLine=" + scanLine +
                 '}';
     }
 }
