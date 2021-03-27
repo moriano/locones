@@ -13,22 +13,23 @@ import org.moriano.locones.memory.Memory;
 public class PPU {
 
     private int[] registers = new int[8];
-    private int cycles = 0;
+    private int internalCycles = 0; // DO NOT expose this outside, it does not represent the number of cycles
     private int scanLine = 0;
-    private int fragmentCycles = 0;
     private boolean frameComplete = false;
-
     private Memory memory;
 
-    public PPU(Memory memory) {
+    public PPU(Memory memory, int initialScanLine) {
         this.memory = memory;
+        this.scanLine = initialScanLine;
     }
 
-    public void cycle() {
-        this.cycles++;
+    public void cycle(int currentCPUCycle) {
         this.frameComplete = false;
-        if (this.cycles >= 341) {
-            this.cycles = 0;
+
+        this.internalCycles = currentCPUCycle * 3;
+
+        if (this.internalCycles >= 341) {
+            this.internalCycles = 0;
             this.scanLine++;
             if (this.scanLine >= 261) {
                 this.scanLine = -1;
@@ -37,20 +38,10 @@ public class PPU {
         }
     }
 
+
+
     public int getScanLine() {
-        return scanLine;
+        return this.scanLine;
     }
 
-    public int getCycles() {
-        return cycles;
-    }
-
-    public int getFragmentCycles() {
-        return fragmentCycles;
-    }
-
-    public int incrementCycles() {
-        this.cycles++;
-        return this.cycles;
-    }
 }

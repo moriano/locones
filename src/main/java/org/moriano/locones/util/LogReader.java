@@ -13,7 +13,16 @@ import java.util.Map;
  * User: moriano
  * Date: 29/03/14
  * Time: 1:54 PM
- * To change this template use File | Settings | File Templates.
+ *
+ * Reads a file like
+ *
+ * C000  4C F5 C5  JMP $C5F5                       A:00 X:00 Y:00 P:24 SP:FD CPUC:0
+
+ *
+ * Critical explanation regarding the PPU and CYC fields.
+ *
+ * CPUC: Refers to the number of CPU cycles used BEFORE the instruction was executed
+ *
  */
 public class LogReader {
 
@@ -26,10 +35,13 @@ public class LogReader {
 
         String line;
 
-        fis = new FileInputStream("/home/moriano/dev/code/locones/src/main/resources/nestest.log");
+        fis = new FileInputStream("/home/moriano/dev/code/locones/src/main/resources/nestestCPUCycles.log");
         br = new BufferedReader(new InputStreamReader(fis, Charset.forName("UTF-8")));
         int lineNo = 1;
         while ((line = br.readLine()) != null) {
+            if (line.startsWith(" ")) {
+                continue;
+            }
             String rawAddress = line.substring(0, 4);
             String rawRegisterA = line.substring(50, 52);
             String rawRegisterX = line.substring(55, 57);
@@ -37,12 +49,12 @@ public class LogReader {
             String rawRegisterP = line.substring(65, 67);
             String rawRegisterSP = line.substring(71, 73);
             String instruction = line.substring(16, 19);
-            int cycles = Integer.parseInt(line.substring(78, 81).replace(" ", ""));
-            int scanLines = Integer.parseInt(line.substring(85));
+
+            int cycles = Integer.parseInt(line.substring(79));
 
             LogStatus logStatus = new LogStatus(Integer.valueOf(rawAddress, 16) , instruction, Integer.valueOf(rawRegisterA, 16),
                     Integer.valueOf(rawRegisterX, 16), Integer.valueOf(rawRegisterY, 16), Integer.valueOf(rawRegisterP, 16),
-                    Integer.valueOf(rawRegisterSP, 16), cycles, scanLines);
+                    Integer.valueOf(rawRegisterSP, 16), cycles);
             log.put(lineNo, logStatus);
 
             lineNo++;
@@ -55,7 +67,7 @@ public class LogReader {
                 try {
                     br.close();
                 } catch(Exception e) {
-                    e.printStackTrace();;
+                    e.printStackTrace();
                 }
             }
             br = null;

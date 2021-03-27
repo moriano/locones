@@ -66,6 +66,7 @@ public class CPU {
 
     private transient String firstInstructionArg =  "";
     private transient String secondInstructionArg = "";
+    private String instruction;
 
     private int iteration = 0;
 
@@ -104,6 +105,11 @@ public class CPU {
         return this.programCounter;
     }
 
+
+    public int getCycles() {
+        return cycles;
+    }
+
     public void incrementCycles(int i) {
         this.cycles += i;
     }
@@ -138,7 +144,7 @@ public class CPU {
      *
      * @return
      */
-    private int calculateRegisterP() {
+    public int calculateRegisterP() {
 
         int registerP = 0;
         if(this.carryFlag) {
@@ -175,6 +181,10 @@ public class CPU {
         return registerP;
     }
 
+    public int getLastCode() {
+        return lastCode;
+    }
+
     /**
      * Performs a simple CPU cycle that means.
      *
@@ -184,9 +194,9 @@ public class CPU {
      *
      *
      */
-    public void cycle() {
+    public LogStatus cycle() {
 
-
+        int cyclesBefore = this.cycles;
         iteration++;
         int opCode = this.memory.read(this.programCounter);
 
@@ -194,20 +204,18 @@ public class CPU {
         String hex = Integer.toHexString(opCode).toUpperCase();
         String hexPC = Integer.toHexString(this.programCounter).toUpperCase();
         int oldPC = this.programCounter;
-        String instruction = null;
+        this.instruction = null;
 
         String oldXHex = Integer.toHexString(this.getRegisterX()).toUpperCase();
         String oldYHex = Integer.toHexString(this.getRegisterY()).toUpperCase();
         String oldAHex = Integer.toHexString(this.getRegisterA()).toUpperCase();
         String oldSPHex = Integer.toHexString(this.registerS).toUpperCase();
 
-        this.ppu.cycle();
-        this.ppu.cycle();
-        this.ppu.cycle();
+
         this.ppuCycles = fragmentPPUCycles + (this.cycles * 3);
         if(this.ppuCycles >= 341) {
             this.ppuCycles = this.ppuCycles - 341;
-            this.cycles = 0;
+            //this.cycles = 0;
             fragmentPPUCycles = this.ppuCycles;
         }
 
@@ -1890,35 +1898,36 @@ public class CPU {
 
 
 
-
-        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP, oldPPUCycles)) {
-            ok = "OK";
-        } else {
-            stop = true;
-        }
-
-
-
-        String iterationStr = "";
-        if(iteration < 10) {
-            iterationStr = "   "+iteration;
-        } else if(iteration < 100) {
-            iterationStr = "  "+iteration;
-        } else if(iteration < 1000) {
-            iterationStr = " "+iteration;
-        } else if(iteration < 10000) {
-            iterationStr = " "+iteration;
-        }
-
-        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d SL:%s\t%s\n",
-                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, oldPPUCycles, oldScanLine, ok);
-        if(!this.zeroFlag) {
-            int a = 1;
-        }
+        LogStatus currentStatus = new LogStatus(oldPC, instruction, oldA, oldX, oldY, oldP, oldSp, cyclesBefore);
+//        if(this.checkIterationSanity(instruction, oldPC, iteration, oldA, oldX, oldY, oldSp, oldP, oldPPUCycles)) {
+//            ok = "OK";
+//        } else {
+//            stop = true;
+//        }
+//
+//
+//
+//        String iterationStr = "";
+//        if(iteration < 10) {
+//            iterationStr = "   "+iteration;
+//        } else if(iteration < 100) {
+//            iterationStr = "  "+iteration;
+//        } else if(iteration < 1000) {
+//            iterationStr = " "+iteration;
+//        } else if(iteration < 10000) {
+//            iterationStr = " "+iteration;
+//        }
+//
+//        System.out.printf("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CYC:%d SL:%s\t%s\n",
+//                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, this.cycles, oldScanLine, ok);
+//        if(!this.zeroFlag) {
+//            int a = 1;
+//        }
 
         if(stop) {
             System.exit(1);
         }
+        return currentStatus;
 
     }
 
@@ -1932,7 +1941,7 @@ public class CPU {
                 status.getRegisterSP() == oldSP &&
                 status.getRegisterX() == oldX &&
                 status.getRegisterY() == oldY &&
-                status.getCycles() == cycles) {
+                status.getCycles() == this.cycles) {
             return true;
         } else {
             System.out.println("\n");
@@ -1959,7 +1968,7 @@ public class CPU {
 
             }
             if(status.getCycles() != cycles) {
-                System.out.printf("Cycles does not match, expected vs current %d -- %d\n", status.getCycles(), cycles );
+                System.out.printf("Cycles does not match, expected vs current %d -- %d\n", status.getCycles(), this.cycles );
 
             }
             return false;
@@ -1967,13 +1976,6 @@ public class CPU {
 
     }
 
-    public void run() {
-        while(true) {
-            this.cycle();
-
-        }
-
-    }
 
     /**
      * Some instructions will use an argument compossed of several memory buckets.
@@ -3418,9 +3420,21 @@ public class CPU {
     }
 
 
+    public String getFirstInstructionArg() {
+        return firstInstructionArg;
+    }
 
+    public String getSecondInstructionArg() {
+        return secondInstructionArg;
+    }
 
+    public String getInstruction() {
+        return instruction;
+    }
 
+    public int getRegisterS() {
+        return registerS;
+    }
 
     public int getRegisterX() {
         return registerX;
