@@ -14,6 +14,28 @@ package org.moriano.locones.memory;
  *  $000a=$DF
  *  $000f=$BF
  *
+ * Memory map
+ *
+ *   $0000 - $07FF       2048                Game Ram
+ *   ($0000 - $00FF)     256                 Zero Page - Special Zero Page addressing modes give faster memory read/write access
+ *   ($0100 - $01FF)     256                 Stack memory
+ *   ($0200 - $07FF)     1536                RAM
+ *
+ *   $0800 - $0FFF       2048                Mirror of $0000-$07FF
+ *   ($0800 - $08FF)     256                 Zero Page
+ *   ($0900 - $09FF)     256                 Stack
+ *   ($0A00 - $0FFF)     1024                Ram
+ *
+ *   $1000 - $17FF       2048 bytes          Mirror of $0000-$07FF
+ *   ($1000 - $10FF)     256                 Zero Page
+ *   $1100 - $11FF       256                 Stack
+ *   $1200 - $17FF       1024                RAM
+ *
+ *   $1800 - $1FFF       2048 bytes          Mirror of $0000-$07FF
+ *   ($1800 - $18FF)     256                 Zero Page
+ *   ($1900 - $19FF)     256                 Stack
+ *   ($1A00 - $1FFF)     1024                RAM
+ *
  */
 public class MainMemory {
     private int[] memory = new int[2048];
@@ -31,10 +53,10 @@ public class MainMemory {
     }
 
     public void set(int address, int value) {
-        this.memory[address] = value;
+        this.memory[address & 0x07FF] = value;
     }
 
     public int getFromAddress(int address) {
-        return this.memory[address];
+        return this.memory[address & 0x07FF];
     }
 }

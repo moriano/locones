@@ -72,20 +72,14 @@ public class Memory {
     }
 
     public int read(CPU cpu, AddressingMode addressingMode, int value, boolean checkPageCross) {
-        if(addressingMode == AddressingMode.ACCUMULATOR) {
-            return cpu.getRegisterA();
-        } else if(addressingMode == AddressingMode.INMEDIATE) {
-            return value;
-        } else {
-            int address = addressingMode.getAddress(cpu, value, this, checkPageCross);
-            return this.read(address);
-        }
+        int address = addressingMode.getAddress(cpu, value, this, checkPageCross);
+        return this.read(address);
     }
 
     public int read(int address) {
 
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
-            return this.mainMemory.getFromAddress(address & 0x7FF);
+            return this.mainMemory.getFromAddress(address);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
             //throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet, use the PPU!");
             return this.ppuMemory.getFromAddress(address);
@@ -118,15 +112,7 @@ public class Memory {
 
 
     public void write(CPU cpu, AddressingMode addresingMode, int address, int value) {
-        if(addresingMode == AddressingMode.ACCUMULATOR) {
-            throw new UnsupportedOperationException("Addressing mode accumulator not supported");
-        } else if(addresingMode == AddressingMode.INMEDIATE) {
-            /*
-            Immediate addressing allows the programmer to directly specify an 8 bit constant within the instruction.
-            It is indicated by a '#' symbol followed by an numeric expression. For example:
-             */
-            this.write(address, value);
-        } else if(addresingMode == AddressingMode.ZERO_PAGE) {
+        if(addresingMode == AddressingMode.ZERO_PAGE) {
             /*
             An instruction using zero page addressing mode has only an 8 bit address operand. This limits it to
             addressing only the first 256 bytes of memory (e.g. $0000 to $00FF) where the most significant byte of
@@ -182,7 +168,7 @@ public class Memory {
             value += 128;
         }
         if(address <= 0x1FFF) {
-            this.mainMemory.set(address & 0x7FF, value);
+            this.mainMemory.set(address, value);
         } else if(address <=  0x3FFF) {
             this.ppuMemory.set(address, value);
             throw new IllegalArgumentException("You need to implement the PPU to write to " + Integer.toHexString(address) + "[" + address + "]");

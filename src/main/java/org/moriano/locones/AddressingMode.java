@@ -11,9 +11,6 @@ import org.moriano.locones.memory.Memory;
  */
 public enum AddressingMode {
 
-    IMPLICIT("Implicit", 1),
-    ACCUMULATOR("Accumulator", 2),
-    INMEDIATE("Inmediate", 3),
     ZERO_PAGE("Zero page", 4),
     ZERO_PAGE_X("Zero page X", 5),
     ZERO_PAGE_Y("Zero page Y", 6),
@@ -21,7 +18,6 @@ public enum AddressingMode {
     ABSOLUTE("Absolute", 8),
     ABSOLUTE_X("Absolute X", 9),
     ABSOLUTE_Y("Absolute Y", 10),
-    INDIRECT("Indirect", 11),
     INDEXED_INDIRECT("Indexed indirect", 12),
     INDIRECT_INDEXED("Indirect indexed", 13);
 
@@ -40,28 +36,7 @@ public enum AddressingMode {
     public int getAddress(CPU currentCPU, int argument, Memory memory, boolean checkPageCross){
         //TODO this is confusing and seems to SUCK!!
         switch (this) {
-            case IMPLICIT:
-                /*
-                IMPLICIT
-                For many 6502 instructions the source and destination of the information to be manipulated is implied
-                directly by the function of the instruction itself and no further operand needs to be specified.
-                Operations like 'Clear Carry Flag' (CLC) and 'Return from Subroutine' (RTS) are implicit.
-                 */
-                return 0;
-            case ACCUMULATOR:
-                /*
-                ACCUMULATOR ==> Not used yet
-                Some instructions have an option to operate directly upon the accumulator. The programmer specifies
-                this by using a special operand value, 'A'. For example:
-                 */
-                return 0; //TODO
-            case INMEDIATE:
-                /*
-                Immediate ==> Seems to work
-                Immediate addressing allows the programmer to directly specify an 8 bit constant within the instruction.
-                It is indicated by a '#' symbol followed by an numeric expression. For example:
-                 */
-                return argument;
+
             case ZERO_PAGE:
                 /*
                 Zero page ==> Seems to work
@@ -137,37 +112,6 @@ public enum AddressingMode {
                     }
                 }
                 return result;
-            case INDIRECT:
-                /*
-                Indirect ==> Not used yet
-
-                JMP is the only 6502 instruction to support indirection. The instruction contains a 16 bit address
-                which identifies the location of the least significant byte of another 16 bit memory address which is
-                the real target of the instruction.
-
-                For example if location $0120 contains $FC and location $0121 contains $BA then the instruction JMP
-                ($0120) will cause the next instruction execution to occur at $BAFC (e.g. the contents of $0120 and
-                $0121).
-
-                Believe it or not, the first 6502 processors had a bug on the indirect addressing mode:
-
-                "An original 6502 has does not correctly fetch the target address if the indirect vector falls on a
-                page boundary (e.g. $xxFF where xx is and value from $00 to $FF). In this case fetches the LSB from
-                $xxFF as expected but takes the MSB from $xx00. This is fixed in some later chips like the 65SC02 so
-                for compatibility always ensure the indirect vector is not at the end of the page."
-
-                 */
-                int indirectLower = memory.read(argument);
-                int indirectHigher;
-
-                if((argument & 0xFF) == 0xFF) {
-                    indirectHigher = memory.read(argument & 0xFF00);
-                } else {
-                    indirectHigher = memory.read(argument + 1);
-                }
-                indirectHigher = indirectHigher << 8;
-                int indirectFinal = indirectHigher | indirectLower;
-                return indirectFinal;
             case INDEXED_INDIRECT:
                 /*
                 Indexed indirect ==> Seems to work

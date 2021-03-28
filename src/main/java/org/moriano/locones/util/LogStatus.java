@@ -110,8 +110,11 @@ public class LogStatus {
             instructionArgument += " ";
         }
 
-        return String.format("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s CPUC:%d",
-                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, this.getCycles());
+        int ppuX = Math.floorDiv((this.getCycles() * 3),  341);
+        int ppuY = (this.getCycles() * 3) - (ppuX * 341);
+
+        return String.format("%s %s  %s %s  %s %s\t\t\tA:%s X:%s Y:%s P:%s SP:%s PPU: %d, %d CPUC:%d",
+                iterationStr, hexPC, hex, firstAndSecondInstructions, instruction, instructionArgument, oldAHex, oldXHex, oldYHex, hexRegisterP, oldSPHex, ppuX, ppuY, this.getCycles());
 
     }
 
