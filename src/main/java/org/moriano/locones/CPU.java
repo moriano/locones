@@ -299,7 +299,8 @@ public class CPU {
                 break;
             case 0x71:
                 instruction = "ADC";
-                this.ADC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+
+                this.ADC(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -351,7 +352,7 @@ public class CPU {
                 break;
             case 0x31:
                 instruction = "AND";
-                this.AND(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+                this.AND(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -546,7 +547,7 @@ public class CPU {
                 break;
             case 0xD1:
                 instruction = "CMP";
-                this.CMP(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+                this.CMP(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -621,11 +622,11 @@ public class CPU {
 
             case 0xD3:
                 instruction = "DCP";
-                address = AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, false);
+                address = this.addressingModeIndirectIndexed(true);
                 value = this.memory.read(address);
                 this.DCP(address, value);
                 this.programCounter++;
-                this.cycles += 8; //TODO Documentation states it is 8 cycles... there must be an error in MY code...
+                this.cycles += 7;
                 break;
 
             case 0xCF:
@@ -741,7 +742,7 @@ public class CPU {
                 this.cycles += 6;
                 break;
             case 0x51:
-                this.EOR(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+                this.EOR(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 instruction = "EOR";
                 this.programCounter++;
                 this.cycles += 5;
@@ -813,7 +814,7 @@ public class CPU {
 
             case 0xF3:
                 instruction = "ISB";
-                this.ISB(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, false));
+                this.ISB(this.addressingModeIndirectIndexed(false));
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -883,7 +884,7 @@ public class CPU {
 
             case 0xB3:
                 instruction = "LAX";
-                this.LAX(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1), true));
+                this.LAX(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -951,7 +952,7 @@ public class CPU {
 
             case 0xB1:
                 instruction = "LDA";
-                this.LDA(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1), true));
+                this.LDA(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -1316,7 +1317,7 @@ public class CPU {
                 this.cycles += 6;
                 break;
             case 0x11:
-                this.ORA(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+                this.ORA(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 instruction = "ORA";
                 this.programCounter++;
                 this.cycles += 5;
@@ -1378,7 +1379,7 @@ public class CPU {
 
             case 0x33:
                 instruction = "RLA";
-                this.RLA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
+                this.RLA(this.addressingModeIndirectIndexed(true), false);
                 this.programCounter++;
                 this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
@@ -1492,7 +1493,7 @@ public class CPU {
 
             case 0x73:
                 instruction = "RRA";
-                this.RRA(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
+                this.RRA(this.addressingModeIndirectIndexed(true), false);
                 this.programCounter++;
                 this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
@@ -1667,7 +1668,7 @@ public class CPU {
 
             case 0x13:
                 instruction = "SLO";
-                this.SLO(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
+                this.SLO(this.addressingModeIndirectIndexed(true), false);
                 this.programCounter++;
                 this.cycles += 7; //TODO Documentation states 8 cycles...
                 break;
@@ -1717,7 +1718,7 @@ public class CPU {
 
             case 0x53:
                 instruction = "SRE";
-                this.SRE(AddressingMode.INDIRECT_INDEXED.getAddress(this, this.getInstructionArg(1), this.memory, true), false);
+                this.SRE(this.addressingModeIndirectIndexed(true), false);
                 this.programCounter++;
                 this.cycles += 7; //TODO moriano documentation states 8 cycles...
                 break;
@@ -3616,12 +3617,29 @@ public class CPU {
      * In instruction contains the zero page location of the least significant byte of 16 bit address.
      *
      * The Y register is dynamically added to this value to generated the actual target address for operation.
-     * @param argument
      * @return
      */
-    private int addressingModeIndirectIndexed(int argument) {
-        int lower = this.memory.read(argument) & 0x00FF;
-        return lower + this.registerY;
+    private int addressingModeIndirectIndexed(boolean countCycleIfPageCrossed) {
+        int argument = this.getInstructionArg(1);
+        int myLower = memory.read(argument);
+        int myHigher = memory.read((argument + 1) & 0xFF) << 8;
+
+        int myBase = myHigher | myLower;
+
+        int myMemory = (myBase + this.getRegisterY()) & 0xFFFF;
+
+        /*
+        A page crossing occurs when the end address is NOT in the same page as the original address, page size
+        in NES CPU is 256 bytes (2^8 = 0XFF), so checking if the page has cross is as easy as checking if the
+        bits are all the same except the lower two :)
+         */
+        if(countCycleIfPageCrossed) {
+            if ((myBase & 0xFF00) != (myMemory & 0xFF00)) {
+                this.incrementCycles(1);
+            }
+        }
+
+        return myMemory;
     }
 
 
