@@ -1615,7 +1615,8 @@ public class CPU {
                 break;
             case 0xF1:
                 instruction = "SBC";
-                this.SBC(this.memory.read(this, AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1)));
+
+                this.SBC(this.memory.read(this.addressingModeIndirectIndexed(true)));
                 this.programCounter++;
                 this.cycles += 5;
                 break;
