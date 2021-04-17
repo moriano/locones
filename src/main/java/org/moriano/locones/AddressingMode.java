@@ -11,7 +11,6 @@ import org.moriano.locones.memory.Memory;
  */
 public enum AddressingMode {
 
-    ZERO_PAGE("Zero page", 4),
     ZERO_PAGE_X("Zero page X", 5),
     ZERO_PAGE_Y("Zero page Y", 6),
     RELATIVE("Relative", 7),
@@ -37,16 +36,7 @@ public enum AddressingMode {
         //TODO this is confusing and seems to SUCK!!
         switch (this) {
 
-            case ZERO_PAGE:
-                /*
-                Zero page ==> Seems to work
-                An instruction using zero page addressing mode has only an 8 bit address operand. This limits it to
-                addressing only the first 256 bytes of memory (e.g. $0000 to $00FF) where the most significant byte
-                of the address is always zero. In zero page mode only the least significant byte of the address is held
-                in the instruction making it shorter by one byte (important for space saving) and one less memory fetch
-                during execution (important for speed).
-                 */
-                return argument;
+
             case ZERO_PAGE_X:
                 /*
                 Zero page x ==> Not used yet
