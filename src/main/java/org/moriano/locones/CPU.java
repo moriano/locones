@@ -281,7 +281,7 @@ public class CPU {
                 break;
             case 0x7D:
                 instruction = "ADC";
-                this.ADC(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.ADC(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -332,7 +332,7 @@ public class CPU {
                 break;
             case 0x3D:
                 instruction = "AND";
-                this.AND(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.AND(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -383,7 +383,7 @@ public class CPU {
                 break;
             case 0x1E:
                 instruction = "ASL";
-                this.ASL(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.ASL(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -528,7 +528,7 @@ public class CPU {
                 break;
             case 0xDD:
                 instruction = "CMP";
-                this.CMP(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.CMP(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -639,7 +639,7 @@ public class CPU {
 
             case 0xDF:
                 instruction = "DCP";
-                address = this.addressingModeAbsoluteX(this.getInstructionArg(2));
+                address = this.addressingModeAbsoluteX(this.getInstructionArg(2), false);
                 value = this.memory.read(address);
                 this.DCP(address, value);
                 this.programCounter++;
@@ -676,7 +676,7 @@ public class CPU {
                 break;
             case 0xDE:
                 instruction = "DEC";
-                this.DEC(this.addressingModeAbsoluteX(this.getInstructionArg(2)));
+                this.DEC(this.addressingModeAbsoluteX(this.getInstructionArg(2), false));
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -723,7 +723,7 @@ public class CPU {
                 this.cycles += 4;
                 break;
             case 0x5D:
-                this.EOR(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.EOR(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 instruction = "EOR";
                 this.programCounter++;
                 this.cycles += 4;
@@ -768,7 +768,7 @@ public class CPU {
                 break;
             case 0xFE:
                 instruction = "INC";
-                this.INC(this.addressingModeAbsoluteX(this.getInstructionArg(2)));
+                this.INC(this.addressingModeAbsoluteX(this.getInstructionArg(2), false));
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -827,7 +827,7 @@ public class CPU {
 
             case 0xFF:
                 instruction = "ISB";
-                this.ISB(this.addressingModeAbsoluteX(this.getInstructionArg(2)));
+                this.ISB(this.addressingModeAbsoluteX(this.getInstructionArg(2), false));
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -930,7 +930,8 @@ public class CPU {
                 break;
             case 0xBD:
                 instruction = "LDA";
-                this.LDA(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2), true));
+
+                this.LDA(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), true)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -1014,7 +1015,7 @@ public class CPU {
                 this.cycles += 4;
                 break;
             case 0xBC:
-                this.LDY(this.memory.read(this, AddressingMode.ABSOLUTE_X, this.getInstructionArg(2)));
+                this.LDY(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), true)));
                 instruction = "LDY";
                 this.programCounter++;
                 this.cycles += 4;
@@ -1047,7 +1048,7 @@ public class CPU {
                 break;
             case 0x5E:
                 instruction = "LSR";
-                this.LSR(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.LSR(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1225,7 +1226,7 @@ public class CPU {
 
             case 0x1C:
                 instruction = "NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1233,7 +1234,7 @@ public class CPU {
 
             case 0x3C:
                 instruction = "NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1241,7 +1242,7 @@ public class CPU {
 
             case 0x5C:
                 instruction = "NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1249,7 +1250,7 @@ public class CPU {
 
             case 0x7C:
                 instruction = "NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1257,7 +1258,7 @@ public class CPU {
 
             case 0xDC:
                 instruction = "NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1265,7 +1266,7 @@ public class CPU {
 
             case 0xFC:
                 instruction ="NOP";
-                AddressingMode.ABSOLUTE_X.getAddress(this, this.getInstructionArg(2), this.memory, true);
+                this.addressingModeAbsoluteX(this.getInstructionArg(2), true);
                 this.NOP();
                 this.programCounter++;
                 this.cycles += 4;
@@ -1298,7 +1299,7 @@ public class CPU {
                 break;
             case 0x1D:
                 instruction = "ORA";
-                this.ORA(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.ORA(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -1391,7 +1392,7 @@ public class CPU {
 
             case 0x3F:
                 instruction = "RLA";
-                this.RLA(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.RLA(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1430,7 +1431,7 @@ public class CPU {
                 break;
             case 0x3E:
                 instruction = "ROL";
-                this.ROL(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.ROL(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1462,7 +1463,7 @@ public class CPU {
                 break;
             case 0x7E:
                 instruction = "ROR";
-                this.ROR(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.ROR(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1505,7 +1506,7 @@ public class CPU {
 
             case 0x7F:
                 instruction = "RRA";
-                this.RRA(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.RRA(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1595,7 +1596,7 @@ public class CPU {
                 break;
             case 0xFD:
                 instruction = "SBC";
-                this.SBC(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2))));
+                this.SBC(this.memory.read(this.addressingModeAbsoluteX(this.getInstructionArg(2), false)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -1680,7 +1681,7 @@ public class CPU {
 
             case 0x1F:
                 instruction = "SLO";
-                this.SLO(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.SLO(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1730,7 +1731,7 @@ public class CPU {
 
             case 0x5F:
                 instruction = "SRE";
-                this.SRE(this.addressingModeAbsoluteX(this.getInstructionArg(2)), false);
+                this.SRE(this.addressingModeAbsoluteX(this.getInstructionArg(2), false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1765,7 +1766,7 @@ public class CPU {
             case 0x9D:
                 instruction = "STA";
                 int instArg = this.getInstructionArg(2);
-                int myAddress = this.addressingModeAbsoluteX(instArg);
+                int myAddress = this.addressingModeAbsoluteX(instArg, false);
                 this.STA(myAddress);
                 //this.STA(AddressingMode.ABSOLUTE_X, instArg);
                 this.programCounter++;
@@ -3543,11 +3544,10 @@ public class CPU {
         return argument;
     }
 
-    private int addressingModeAbsoluteX(int argument) {
+    private int addressingModeAbsoluteX(int argument, boolean countCycleIfPageCrossed) {
         int absoluteX =  (this.registerX + argument); // & 0xFFFF;
-        if((absoluteX & 0xFF00) != (argument & 0xFF00)) {
-            //this.incrementCycles(1);
-            int a = 1;
+        if(countCycleIfPageCrossed && (absoluteX & 0xFF00) != (argument & 0xFF00)) {
+            this.incrementCycles(1);
         }
         return absoluteX;
     }
