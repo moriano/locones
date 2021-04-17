@@ -112,12 +112,7 @@ public class Memory {
 
 
     public void write(CPU cpu, AddressingMode addresingMode, int address, int value) {
-        if(addresingMode == AddressingMode.ABSOLUTE) {
-            /*
-            Instructions using absolute addressing contain a full 16 bit address to identify the target location.
-             */
-            this.write(address, value);
-        } else if(addresingMode == AddressingMode.INDEXED_INDIRECT) {
+        if(addresingMode == AddressingMode.INDEXED_INDIRECT) {
             //throw new UnsupportedOperationException("REVIEW THIS MATE!");
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
@@ -132,17 +127,7 @@ public class Memory {
             int finalAddress = addresingMode.getAddress(cpu, address, this);
             this.write(finalAddress, value);
             cpu.incrementProgramCounter(); // TODO not sure about this, THIS IS NOT A GOOD IDEA MATE!
-        } else if(addresingMode == AddressingMode.ZERO_PAGE_X) {
-            int finalAddress = addresingMode.getAddress(cpu, address, this);
-            this.write(finalAddress, value);
-        } else if(addresingMode == AddressingMode.ZERO_PAGE_Y) {
-            int finalAddress = addresingMode.getAddress(cpu, address, this);
-            this.write(finalAddress, value);
-        } else if(addresingMode == AddressingMode.ABSOLUTE_X) {
-            int finalAddress = addresingMode.getAddress(cpu, address, this);
-            this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); //TODO not sure about this, THIS IS NOT A GOOD IDEA MATE!
-        }else {       //TODO implement the rest of addressing modes...
+        } else {       //TODO implement the rest of addressing modes...
             //this.write(address, value);
             //cpu.incrementProgramCounter();
             throw new UnsupportedOperationException("Ouch!, addressing mode " + addresingMode + " not supported");

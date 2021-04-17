@@ -269,7 +269,7 @@ public class CPU {
                 break;
             case 0x75:
                 instruction = "ADC";
-                this.ADC(this.memory.read(this, AddressingMode.ZERO_PAGE_X, this.getInstructionArg(1)));
+                this.ADC(this.memory.read(this.addressingModeZeroPageX()));
                 this.programCounter++;
                 this.cycles += 4;
                 break;

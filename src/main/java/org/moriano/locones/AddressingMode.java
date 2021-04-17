@@ -11,11 +11,6 @@ import org.moriano.locones.memory.Memory;
  */
 public enum AddressingMode {
 
-    ZERO_PAGE_X("Zero page X", 5),
-    ZERO_PAGE_Y("Zero page Y", 6),
-    RELATIVE("Relative", 7),
-    ABSOLUTE("Absolute", 8),
-    ABSOLUTE_X("Absolute X", 9),
     ABSOLUTE_Y("Absolute Y", 10),
     INDEXED_INDIRECT("Indexed indirect", 12),
     INDIRECT_INDEXED("Indirect indexed", 13);
@@ -37,55 +32,8 @@ public enum AddressingMode {
         switch (this) {
 
 
-            case ZERO_PAGE_X:
-                /*
-                Zero page x ==> Not used yet
-                The address to be accessed by an instruction using indexed zero page addressing is calculated by taking
-                the 8 bit zero page address from the instruction and adding the current value of the X register to it.
-                For example if the X register contains $0F and the instruction LDA $80,X is executed then the
-                accumulator will be loaded from $008F (e.g. $80 + $0F => $8F).
-                 */
-                return (argument+currentCPU.getRegisterX()) & 0xFF;
-            case ZERO_PAGE_Y:
-                /*
-                Zero page y ==> Not used yet
-                The address to be accessed by an instruction using indexed zero page addressing is calculated by taking
-                the 8 bit zero page address from the instruction and adding the current value of the Y register to it.
-                This mode can only be used with the LDX and STX instructions.
-                 */
-                return (argument + currentCPU.getRegisterY()) & 0xFF;
-            case RELATIVE:
-                /*
-                Relative ==> Not used yet
-                Relative addressing mode is used by branch instructions (e.g. BEQ, BNE, etc.) which contain a signed 8
-                bit relative offset (e.g. -128 to +127) which is added to program counter if the condition is true. As
-                the program counter itself is incremented during instruction execution by two the effective address
-                range for the target instruction must be with -126 to +129 bytes of the branch.
-                 */
-                return argument + currentCPU.getProgramCounter();
-            case ABSOLUTE:
-                /*
-                Absolute ==> Seems to work
 
-                Instructions using absolute addressing contain a full 16 bit address to identify the target location.
-                 */
-                return argument;
-            case ABSOLUTE_X:
-                /*
-                Absolute,X ==> Not used yet
-                The address to be accessed by an instruction using X register indexed absolute addressing is computed
-                by taking the 16 bit address from the instruction and added the contents of the X register. For example
-                if X contains $92 then an STA $2000,X instruction will store the accumulator at $2092 (e.g. $2000 + $92).
-                 */
-                int resultAbsoluteX = (argument + currentCPU.getRegisterX()) & 0xFFFF;
 
-                if(checkPageCross) {
-                    //Page cross!
-                    if ((resultAbsoluteX & 0xFF00) != (argument & 0xFF00)) {
-                        currentCPU.incrementCycles(1);
-                    }
-                }
-                return resultAbsoluteX;
             case ABSOLUTE_Y:
                 /*
                 Absolute Y ==> Not used yet
