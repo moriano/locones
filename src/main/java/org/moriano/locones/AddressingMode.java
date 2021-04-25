@@ -11,9 +11,7 @@ import org.moriano.locones.memory.Memory;
  */
 public enum AddressingMode {
 
-    ABSOLUTE_Y("Absolute Y", 10),
-    INDEXED_INDIRECT("Indexed indirect", 12),
-    INDIRECT_INDEXED("Indirect indexed", 13);
+    INDEXED_INDIRECT("Indexed indirect", 12);
 
     private String name;
     private int id;
@@ -33,23 +31,6 @@ public enum AddressingMode {
 
 
 
-
-            case ABSOLUTE_Y:
-                /*
-                Absolute Y ==> Not used yet
-                The Y register indexed absolute addressing mode is the same as the previous mode only with the contents
-                of the Y register added to the 16 bit address from the instruction.
-                 */
-                //throw new UnsupportedOperationException("Addressing mode " + this.name + " Not implemented yet");
-                int result = (argument + currentCPU.getRegisterY()) & 0xFFFF;
-
-                if(checkPageCross) {
-                    //Page cross!
-                    if ((result & 0xFF00) != (argument & 0xFF00)) {
-                        currentCPU.incrementCycles(1);
-                    }
-                }
-                return result;
             case INDEXED_INDIRECT:
                 /*
                 Indexed indirect ==> Seems to work
@@ -67,39 +48,7 @@ public enum AddressingMode {
                 return finalAddress;
                 //throw new UnsupportedOperationException("Indexed indirect addressing not supported!");
 
-            case INDIRECT_INDEXED:
-                /*
-                Indirect indexed ==> Not used yet
 
-                See http://homepage.ntlworld.com/cyborgsystems/CS_Main/6502/6502.htm#ADDR-INDI
-
-                Indirect indirect addressing is the most common indirection mode used on the 6502. In instruction
-                contains the zero page location of the least significant byte of 16 bit address. The Y register is
-                dynamically added to this value to generated the actual target address for operation.
-                 */
-                //throw new UnsupportedOperationException("Implemente Indirect indexed addressing mode!");
-                int myLower = memory.read(argument);
-                int myHigher = memory.read((argument + 1) & 0xFF) << 8;
-
-                int myBase = myHigher | myLower;
-
-                int myMemory = (myBase + currentCPU.getRegisterY()) & 0xFFFF;
-
-                /*
-                Page crossing! For some reason ALL the instructions using this address mode will increase the cycles
-                by one if a page crossing occurs, so it makes sense to code it here.
-
-                A page crossing occurs when the end address is NOT in the same page as the original address, page size
-                in NES CPU is 256 bytes (2^8 = 0XFF), so checking if the page has cross is as easy as checking if the
-                bits are all the same except the lower two :)
-                 */
-                if(checkPageCross) {
-                    if ((myBase & 0xFF00) != (myMemory & 0xFF00)) {
-                        currentCPU.incrementCycles(1);
-                    }
-                }
-
-                return myMemory;
 
                 //return argument + currentCPU.getRegisterY();
             default:

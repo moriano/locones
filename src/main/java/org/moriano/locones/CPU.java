@@ -458,7 +458,7 @@ public class CPU {
             case 0x00:
                 throw new UnsupportedOperationException("BRK instruction not implemented!");
 
-            //BVC
+                //BVC
             case 0x50:
                 instruction = "BVC";
                 this.BVC(this.getInstructionArg(1));
@@ -937,7 +937,7 @@ public class CPU {
                 break;
             case 0xB9:
                 instruction = "LDA";
-                this.LDA(this.memory.read(this, AddressingMode.ABSOLUTE_Y, this.getInstructionArg(2), true));
+                this.LDA(this.memory.read(this.addressingModeAbsoluteY(true)));
                 this.programCounter++;
                 this.cycles += 4;
                 break;
@@ -1400,7 +1400,7 @@ public class CPU {
 
             case 0x3B:
                 instruction = "RLA";
-                this.RLA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.RLA(this.addressingModeAbsoluteY(false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1514,7 +1514,7 @@ public class CPU {
 
             case 0x7B:
                 instruction = "RRA";
-                this.RRA(AddressingMode.ABSOLUTE_Y.getAddress(this, this.getInstructionArg(2), this.memory), false);
+                this.RRA(this.addressingModeAbsoluteY(false), false);
                 this.programCounter++;
                 this.cycles += 7;
                 break;
@@ -1786,7 +1786,10 @@ public class CPU {
                 break;
             case 0x91:
                 instruction = "STA";
-                this.STA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
+                int memAddress = this.addressingModeIndirectIndexed(false);
+                this.STA(memAddress);
+                this.incrementProgramCounter();
+                //this.STA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
                 this.cycles += 6;
                 break;
 
@@ -3545,7 +3548,17 @@ public class CPU {
 
     private int addressingModeAbsoluteX(boolean countCycleIfPageCrossed) {
         int argument = this.getInstructionArg(2);
-        int absoluteX =  (this.registerX + argument); // & 0xFFFF;
+
+        /*
+        TODO
+
+        AbsoluteX and AbsoluteY need a & 0xFFFF not sure why.
+
+        AbsoluteY will fail some LDA instructions as it will try to read out of memory values.
+
+        This is MOST LIKELY a bug on your end.
+         */
+        int absoluteX =  (this.registerX + argument)  & 0xFFFF;
         if(countCycleIfPageCrossed && (absoluteX & 0xFF00) != (argument & 0xFF00)) {
             this.incrementCycles(1);
         }
@@ -3554,7 +3567,16 @@ public class CPU {
 
     private int addressingModeAbsoluteY(boolean countCycleIfPageCrossed) {
         int argument = this.getInstructionArg(2);
-        int absoluteY = this.registerY + argument;
+        /*
+        TODO
+
+        AbsoluteX and AbsoluteY need a & 0xFFFF not sure why.
+
+        AbsoluteY will fail some LDA instructions as it will try to read out of memory values.
+
+        This is MOST LIKELY a bug on your end.
+         */
+        int absoluteY = (this.registerY + argument) & 0xFFFF;
         if(countCycleIfPageCrossed && (absoluteY & 0xFF00) != (argument & 0xFF00)) {
             this.incrementCycles(1);
         }
@@ -3642,6 +3664,7 @@ public class CPU {
 
         return myMemory;
     }
+
 
 
 }
