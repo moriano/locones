@@ -293,7 +293,7 @@ public class CPU {
                 break;
             case 0x61:
                 instruction = "ADC";
-                this.ADC(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.ADC(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -346,7 +346,7 @@ public class CPU {
                 break;
             case 0x21:
                 instruction = "AND";
-                this.AND(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.AND(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -541,7 +541,7 @@ public class CPU {
                 break;
             case 0xC1:
                 instruction = "CMP";
-                this.CMP(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.CMP(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -613,7 +613,7 @@ public class CPU {
 
             case 0xC3:
                 instruction = "DCP";
-                address = AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory);
+                address = this.addressingModeIndexedIndirect();
                 value = this.memory.read(address);
                 this.DCP(address, value);
                 this.programCounter++;
@@ -736,7 +736,7 @@ public class CPU {
                 this.cycles += 4;
                 break;
             case 0x41:
-                this.EOR(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.EOR(this.memory.read(this.addressingModeIndexedIndirect()));
                 instruction = "EOR";
                 this.programCounter++;
                 this.cycles += 6;
@@ -807,7 +807,7 @@ public class CPU {
 
             case 0xE3:
                 instruction = "ISB";
-                this.ISB(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.ISB(this.addressingModeIndexedIndirect());
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -863,7 +863,7 @@ public class CPU {
             //LAX => Unofficial instruction
             case 0xA3:
                 instruction = "LAX";
-                this.LAX(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.LAX(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -944,7 +944,7 @@ public class CPU {
 
             case 0xA1:
                 instruction = "LDA";
-                this.LDA(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.LDA(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -1311,7 +1311,7 @@ public class CPU {
                 this.cycles += 4;
                 break;
             case 0x01:
-                this.ORA(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.ORA(this.memory.read(this.addressingModeIndexedIndirect()));
                 instruction = "ORA";
                 this.programCounter++;
                 this.cycles += 6;
@@ -1372,7 +1372,7 @@ public class CPU {
 
             case 0x23:
                 instruction = "RLA";
-                this.RLA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.RLA(this.addressingModeIndexedIndirect(), false);
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -1486,7 +1486,7 @@ public class CPU {
 
             case 0x63:
                 instruction = "RRA";
-                this.RRA(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.RRA(this.addressingModeIndexedIndirect(), false);
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -1537,7 +1537,7 @@ public class CPU {
             //SAX => Unofficial instruction
             case 0x83:
                 instruction = "SAX";
-                this.SAX(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory));
+                this.SAX(this.addressingModeIndexedIndirect());
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -1609,7 +1609,7 @@ public class CPU {
                 break;
             case 0xE1:
                 instruction = "SBC";
-                this.SBC(this.memory.read(this, AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1)));
+                this.SBC(this.memory.read(this.addressingModeIndexedIndirect()));
                 this.programCounter++;
                 this.cycles += 6;
                 break;
@@ -1662,7 +1662,7 @@ public class CPU {
 
             case 0x03:
                 instruction = "SLO";
-                this.SLO(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.SLO(this.addressingModeIndexedIndirect(), false);
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -1712,7 +1712,7 @@ public class CPU {
 
             case 0x43:
                 instruction = "SRE";
-                this.SRE(AddressingMode.INDEXED_INDIRECT.getAddress(this, this.getInstructionArg(1), this.memory), false);
+                this.SRE(this.addressingModeIndexedIndirect(), false);
                 this.programCounter++;
                 this.cycles += 8;
                 break;
@@ -1769,7 +1769,6 @@ public class CPU {
                 instruction = "STA";
                 int myAddress = this.addressingModeAbsoluteX( false);
                 this.STA(myAddress);
-                //this.STA(AddressingMode.ABSOLUTE_X, instArg);
                 this.programCounter++;
                 this.cycles += 5;
                 break;
@@ -1781,7 +1780,8 @@ public class CPU {
                 break;
             case 0x81:
                 instruction = "STA";
-                this.STA(AddressingMode.INDEXED_INDIRECT, this.getInstructionArg(1));
+                this.STA(this.addressingModeIndexedIndirect());
+                this.programCounter++;
                 this.cycles += 6;
                 break;
             case 0x91:
@@ -1789,7 +1789,6 @@ public class CPU {
                 int memAddress = this.addressingModeIndirectIndexed(false);
                 this.STA(memAddress);
                 this.incrementProgramCounter();
-                //this.STA(AddressingMode.INDIRECT_INDEXED, this.getInstructionArg(1));
                 this.cycles += 6;
                 break;
 
@@ -3245,10 +3244,6 @@ public class CPU {
      *
      * Stores the contents of the accumulator into memory.
      */
-    private void STA(AddressingMode addressingMode, int arg) {
-        this.memory.write(this, addressingMode, arg, this.getRegisterA());
-    }
-
     private void STA(int address) {
         this.memory.write(address, this.registerA);
     }
@@ -3623,14 +3618,24 @@ public class CPU {
      * The address of the table is taken from the instruction and the X register added
      * to it (with zero page wrap around) to give the location of the least significant byte of the target address.
      *
-     * @param argument
+     * This mode is only used with the X register.
+     *
+     * Indexed Indirect ($aa,X) (IND,X)
+     * The operand	 	 	 	 $aa is added (NC) to the X register, NC = NonCarry
+     * the result is a zero page address $aa + X (NC) that contains the LSB of the EA. LSB = Least significant byte
+     * The address	 	 	 	 $aa + X + $01 contains the MSB of the EA. MSB = Most significant byte
+     *
      * @return
      */
-    private int addressingModeIndexedIndirect(int argument) {
+    private int addressingModeIndexedIndirect() {
+        int argument = this.getInstructionArg(1);
+
+
+
         int lower = memory.read((argument + this.getRegisterX() ) & 0xFF);
         int higher = memory.read((argument + this.getRegisterX() + 1) & 0xFF) << 8;
         int finalAddress = higher | lower;
-        this.incrementProgramCounter();
+        // this.incrementProgramCounter();
         return finalAddress;
     }
 

@@ -1,6 +1,5 @@
 package org.moriano.locones.memory;
 
-import org.moriano.locones.AddressingMode;
 import org.moriano.locones.CPU;
 import org.moriano.locones.cartridge.Cartridge;
 
@@ -67,15 +66,6 @@ public class Memory {
         this.cartridge = cartridge;
     }
 
-    public int read(CPU cpu, AddressingMode addresingMode, int value) {
-        return this.read(cpu, addresingMode, value, true);
-    }
-
-    public int read(CPU cpu, AddressingMode addressingMode, int value, boolean checkPageCross) {
-        int address = addressingMode.getAddress(cpu, value, this, checkPageCross);
-        return this.read(address);
-    }
-
     public int read(int address) {
 
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
@@ -106,24 +96,6 @@ public class Memory {
             return this.cartridge.readPRG(address & 0x3FFF);
         } else {
             throw new IllegalArgumentException("Impossible to read from address " + Integer.toHexString(address) + " [" + address + "]");
-        }
-    }
-
-
-
-    public void write(CPU cpu, AddressingMode addresingMode, int address, int value) {
-        if(addresingMode == AddressingMode.INDEXED_INDIRECT) {
-            //throw new UnsupportedOperationException("REVIEW THIS MATE!");
-            int finalAddress = addresingMode.getAddress(cpu, address, this);
-            this.write(finalAddress, value);
-            cpu.incrementProgramCounter(); // TODO not sure about this ==> REVIEW IT, THIS IS NOT A GOOD IDEA MATE!
-
-        } else {       //TODO implement the rest of addressing modes...
-            //this.write(address, value);
-            //cpu.incrementProgramCounter();
-            throw new UnsupportedOperationException("Ouch!, addressing mode " + addresingMode + " not supported");
-            //address = addresingMode.getAddress(cpu, value, this);
-            //this.write(address, value);
         }
     }
 
