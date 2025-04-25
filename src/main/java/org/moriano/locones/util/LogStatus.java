@@ -1,6 +1,9 @@
 package org.moriano.locones.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,6 +22,7 @@ public class LogStatus {
     private int registerP;
     private int registerSP;
     private int cycles;
+    private List<String> memoryOperations = new ArrayList<>();
 
     public LogStatus(int address, String instruction,
                      int registerA, int registerX,
@@ -66,7 +70,13 @@ public class LogStatus {
         return registerSP;
     }
 
+    public List<String> getMemoryOperations() {
+        return memoryOperations;
+    }
 
+    public void setMemoryOperations(List<String> memoryOperations) {
+        this.memoryOperations = new ArrayList<>(memoryOperations.stream().filter(t->t.contains("WRITE")).collect(Collectors.toSet()));
+    }
 
     public String toNesTestFormat(int iteration, int cpuCode, String cpuInstruction, String firstInstructionArg, String secondInstructionArg) {
         // Print

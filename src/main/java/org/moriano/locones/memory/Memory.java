@@ -1,7 +1,9 @@
 package org.moriano.locones.memory;
 
-import org.moriano.locones.CPU;
 import org.moriano.locones.cartridge.Cartridge;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the whole memory of a NES
@@ -58,7 +60,7 @@ public class Memory {
 
     private final APUMemory apuMemory = new APUMemory();
     private final PPUMemory ppuMemory = new PPUMemory();
-
+    private final List<String>  operationsHistory = new ArrayList<>(); // Stores a list of READ/WRITE ops
 
     private Cartridge cartridge;
 
@@ -67,7 +69,7 @@ public class Memory {
     }
 
     public int read(int address) {
-
+        operationsHistory.add("      READ      $"+toHex(address));
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
             return this.mainMemory.getFromAddress(address);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
@@ -100,6 +102,7 @@ public class Memory {
     }
 
     public void write(int address, int value) {
+        operationsHistory.add("      WRITE     $"+toHex(address));
         if(value < 0) {
             value += 128;
         }
@@ -109,13 +112,28 @@ public class Memory {
             this.ppuMemory.set(address, value);
             throw new IllegalArgumentException("You need to implement the PPU to write to " + Integer.toHexString(address) + "[" + address + "]");
         } else if (address <= 0X4017) {
-            this.apuMemory.set(address, value); // TODO moriano check this (should be all good)
-            // throw new IllegalArgumentException("You need to implement the APUMemory and I/O registers to write to " + Integer.toHexString(address) + "[" + address + "]");
+            this.apuMemory.set(address, value);
         } else if (address <= 0xFFFF) {
             throw new IllegalArgumentException("You need to cartridge space to write to " + Integer.toHexString(address) + "[" + address + "]");
 
         } else {
             throw new IllegalArgumentException("Impossible to write to address " + address);
         }
+    }
+
+    public void clearOpHistory() {
+        this.operationsHistory.clear();
+    }
+
+    public List<String> getOperationsHistory() {
+        return operationsHistory;
+    }
+
+    private String toHex(int value) {
+        String result = Integer.toHexString(value).toUpperCase();
+        if (result.length() == 3) {
+            result = "0"+result;
+        }
+        return result.toUpperCase();
     }
 }

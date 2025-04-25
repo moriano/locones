@@ -2,10 +2,14 @@ package org.moriano.locones;
 
 import org.moriano.locones.cartridge.Cartridge;
 import org.moriano.locones.memory.Memory;
+import org.moriano.locones.screen.Screen;
 import org.moriano.locones.util.LogReader;
 import org.moriano.locones.util.LogStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeUnit;
+
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,14 +25,32 @@ public class NES {
     private Memory memory;
     private PPU ppu;
     private final LogReader logReader = new LogReader();
+    private int totalMemoryErrors = 0;
+    private final Screen screen = new Screen();
 
     public NES(Cartridge cartridge) {
         log.info("Emulating with cart ==> " + cartridge);
+        long paletteStart = System.currentTimeMillis();
+        this.screen.showSystemPalette();
+        long paletteEnd = System.currentTimeMillis();
+        log.info("Palette generated in " + (paletteEnd-paletteStart) + "ms");
         this.memory = new Memory(cartridge);
         this.ppu = new PPU(memory, 241); // Initialize SL to 241 as per nestest.log
         this.cpu.setMemory(memory);
         this.cpu.setPpu(ppu);
+        long start = System.currentTimeMillis();
+        int totalFrames = 2000;
+        for(int i = 0; i<=totalFrames; i++) {
+            this.screen.generateRandomFrame();
+        }
+        long end = System.currentTimeMillis();
+
+        double seconds = (end-start)/1000f;
+        log.info("We have run " + totalFrames + "frames in " + seconds + " seconds, which is " + totalFrames/seconds + "Frames per second");
+
+        int a = 1;
     }
+
 
 
     public void run() {
@@ -55,6 +77,7 @@ public class NES {
                 LogStatus expected = logReader.getLogStatus(cpuIterations);
                 if (expected == null) {
                     System.out.println("Tests passed!!!");
+
                     System.exit(0);
                 }
                 LogStatus status = this.cpu.cycle();
@@ -67,14 +90,50 @@ public class NES {
 
     private void checkIterationSanity(LogStatus current, LogStatus expected, int iteration) {
         boolean failed = false;
+
+
+
+
         if (!current.equals(expected)) {
             expected.printDiff(current);
             failed = true;
         }
 
+
+
+
         System.out.println(current.toNesTestFormat(iteration, this.cpu.getLastCode(),
                 this.cpu.getInstruction(),
                 this.cpu.getFirstInstructionArg(), this.cpu.getSecondInstructionArg()));
+
+        current.setMemoryOperations(new ArrayList<>(this.memory.getOperationsHistory()));
+
+
+        if (current.getMemoryOperations().size() != expected.getMemoryOperations().size()) {
+            totalMemoryErrors++;
+            System.out.println("Number of memory operations do not match, expected is " + expected.getMemoryOperations().size() + " actual is " + current.getMemoryOperations().size());
+
+
+            int size = Math.max(current.getMemoryOperations().size(), expected.getMemoryOperations().size());
+            System.out.println("\tExpected --vs-- Current");
+            for (int i = 0; i<= size; i++) {
+                String currentOp = "      ";
+                String expectedOp = "     ";
+                if (current.getMemoryOperations().size() > i) {
+                    currentOp = current.getMemoryOperations().get(i);
+                }
+
+                if (expected.getMemoryOperations().size() > i) {
+                    expectedOp = expected.getMemoryOperations().get(i);
+                }
+                System.out.println("\t"+expectedOp + " -- vs -- " + currentOp);
+            }
+            System.out.println("==> Total memory errors so far => " + totalMemoryErrors );
+            System.out.println("\n");
+        }
+
+        this.memory.clearOpHistory();
+
         if (failed) {
             throw new RuntimeException("Ouch!");
         }

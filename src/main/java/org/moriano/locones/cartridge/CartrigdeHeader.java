@@ -5,7 +5,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The iNES format (file name suffix .nes) is the de facto standard for distribution of NES binary programs. It consists of the following sections, in order:
+ * The iNES format (file name suffix .nes) is the de facto standard for distribution of NES binary programs.
+ * It consists of the following sections, in order:
  * Header (16 bytes)
  *
  *

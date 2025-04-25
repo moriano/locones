@@ -13,7 +13,9 @@ import java.nio.file.Paths;
  * User: moriano
  * Date: 8/10/13
  * Time: 6:31 PM
- * To change this template use File | Settings | File Templates.
+ *
+ * Defines a NES cartridge. This is prepared to follow the .NES format (see https://www.nesdev.org/wiki/INES)
+ *
  */
 public class Cartridge {
 
@@ -35,6 +37,7 @@ public class Cartridge {
         prgROM = new int[this.cartrigdeHeader.getPrgRomSize()];
         chrROM = new int[this.cartrigdeHeader.getChrRomSize()];
 
+
         int j = 0;
         int limit = startPosition+this.cartrigdeHeader.getPrgRomSize();
         for(int i = startPosition; i<limit; i++) {
@@ -46,15 +49,16 @@ public class Cartridge {
             j++;
         }
 
-        startPosition += this.cartrigdeHeader.getChrRomSize();
+        startPosition += this.cartrigdeHeader.getPrgRomSize(); //TODO MORIANO where are those 4K coming from??
         j = 0;
         for(int i = startPosition; i<startPosition+this.cartrigdeHeader.getChrRomSize(); i++) {
             chrROM[j] = rawBytes[i];
             j++;
         }
+    }
 
-
-
+    public int[] getChrROM() {
+        return chrROM;
     }
 
     public int readPRG(int address) {
