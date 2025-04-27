@@ -138,7 +138,6 @@ public class Tile {
         }
 
         Tile newTile = new Tile(finalTileBytes);
-        System.out.println(newTile);
 
         return newTile;
     }

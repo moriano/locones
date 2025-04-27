@@ -33,7 +33,7 @@ import java.util.List;
  *   ($1900 - $19FF)     256                 Stack
  *   ($1A00 - $1FFF)     1024                RAM
  *
- *   $2000 - $2007       8 bytes             Input / Output registers
+ *   $2000 - $2007       8 bytes             Input / Output registers (PPU REGISTERS)
  *   $2008 - $3FFF       8184 bytes          Mirror of $2000-$2007 (multiple times)
  *
  *   $4000 - $401F       32 bytes            Input / Output registers
@@ -59,13 +59,15 @@ public class Memory {
     private final MainMemory mainMemory = new MainMemory();
 
     private final APUMemory apuMemory = new APUMemory();
-    private final PPUMemory ppuMemory = new PPUMemory();
+    private final PPUMemory ppuMemory;
+    private final PPURegisters ppuRegisters = new PPURegisters();
     private final List<String>  operationsHistory = new ArrayList<>(); // Stores a list of READ/WRITE ops
 
     private Cartridge cartridge;
 
     public Memory(Cartridge cartridge) {
         this.cartridge = cartridge;
+        this.ppuMemory = new PPUMemory(this.cartridge.getChrROM(), this.ppuRegisters);
     }
 
     public int read(int address) {
@@ -73,8 +75,10 @@ public class Memory {
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
             return this.mainMemory.getFromAddress(address);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
-            //throw new UnsupportedOperationException("Reads to address " + address + " not implemented yet, use the PPU!");
-            return this.ppuMemory.getFromAddress(address);
+            /*
+            These are the memory addresses that CPU and PPU use to communicate with one another.
+             */
+            return this.ppuRegisters.getFromAddress(address);
 
         } else if(address <= 0x401F) { //Input/Output registers
             return this.apuMemory.getFromAddress(address);
@@ -90,7 +94,7 @@ public class Memory {
             int value = this.cartridge.readPRG(finalAddres);
             return value;
         } else if(address <= 0xFFFF) { //PRG-ROM upper bank - executable code
-            int realAddress = address - 0xC000;
+            int realAddress = address - 0xC000; // TODO Moriano, you really need to understand this (right now you DON'T). Understand how/if mappers impact here
             int value = this.cartridge.readPRG(realAddress);
 
             return value;
@@ -108,9 +112,11 @@ public class Memory {
         }
         if(address <= 0x1FFF) {
             this.mainMemory.set(address, value);
-        } else if(address <=  0x3FFF) {
-            this.ppuMemory.set(address, value);
-            throw new IllegalArgumentException("You need to implement the PPU to write to " + Integer.toHexString(address) + "[" + address + "]");
+        } else if(address <=  0x3FFF) { //PPU register (mirrored every 8 bytes)
+            /*
+            These are the memory addresses that CPU and PPU use to communicate with one another.
+             */
+            this.ppuRegisters.set(address, value);
         } else if (address <= 0X4017) {
             this.apuMemory.set(address, value);
         } else if (address <= 0xFFFF) {

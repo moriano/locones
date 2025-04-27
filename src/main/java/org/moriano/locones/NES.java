@@ -21,14 +21,15 @@ import java.util.ArrayList;
 public class NES {
 
     private static final Logger log = LoggerFactory.getLogger(NES.class);
-    private CPU cpu = new CPU();
+    private CPU cpu;
     private Memory memory;
     private PPU ppu;
     private final LogReader logReader = new LogReader();
     private int totalMemoryErrors = 0;
     private final Screen screen = new Screen();
 
-    public NES(Cartridge cartridge) {
+    public NES(Cartridge cartridge, int initialPC) {
+        this.cpu = new CPU(initialPC);
         log.info("Emulating with cart ==> " + cartridge);
         long paletteStart = System.currentTimeMillis();
         this.screen.showSystemPalette();
@@ -81,26 +82,26 @@ public class NES {
                     System.exit(0);
                 }
                 LogStatus status = this.cpu.cycle();
+                //this.printTrace(status, cpuIterations);
                 this.checkIterationSanity(status, expected, cpuIterations);
 
             }
         }
     }
 
+    private void printTrace(LogStatus current, int iteration) {
+        System.out.println(current.toNesTestFormat(iteration, this.cpu.getLastCode(),
+                this.cpu.getInstruction(),
+                this.cpu.getFirstInstructionArg(), this.cpu.getSecondInstructionArg()));
+    }
 
     private void checkIterationSanity(LogStatus current, LogStatus expected, int iteration) {
         boolean failed = false;
-
-
-
 
         if (!current.equals(expected)) {
             expected.printDiff(current);
             failed = true;
         }
-
-
-
 
         System.out.println(current.toNesTestFormat(iteration, this.cpu.getLastCode(),
                 this.cpu.getInstruction(),

@@ -8,6 +8,7 @@ import org.moriano.locones.screen.PatternTableUI;
 /**
  * Created by moriano on 15/11/14.
  */
+
 public class Run {
 
     public static void main(String[] args) throws  Exception {
@@ -17,7 +18,8 @@ public class Run {
         PatternTableUI patternTableUI = new PatternTableUI(patternTables);
 
         Thread.sleep(1000);
-        NES myNes = new NES(cartridge);
+        NES myNes = new NES(cartridge, 0xC000); // 0xC004 is where i suspect the nestest program starts, this matches fceux debugger and log
+        //NES myNes = new NES(cartridge, 0xC004);
         myNes.startEmulation();
     }
 }

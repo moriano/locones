@@ -103,7 +103,6 @@ public class PatternTables {
              */
             int[] tileRawData = new int[16];
             for (int tileIdx = i; tileIdx<i+16; tileIdx++) {
-                System.out.println("CHR ROM at position " + tileIdx + " has value " + chrRom[tileIdx]);
                 tileRawData[tileIdx-i] = chrRom[tileIdx];
             }
             Tile aTile = Tile.fromPatternTable(tileRawData);

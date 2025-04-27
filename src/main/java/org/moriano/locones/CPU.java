@@ -74,7 +74,7 @@ public class CPU {
 
     int fragmentPPUCycles = 0;
 
-    public CPU() {
+    public CPU(int initialPC) {
         /*
         The following results are from a US (NTSC) NES, original front-loading design, RP2A03G CPU chip, NES-CPU-07
          main board revision, manufactured in 1988. The memory values are probably slightly different for each
@@ -93,7 +93,7 @@ public class CPU {
         this.registerX = 0;
         this.registerY = 0;
         this.registerS = 0xFD;
-        this.programCounter = 0xC000;
+        this.programCounter = initialPC;
     }
 
     public void setPpu(PPU ppu) {
@@ -456,9 +456,10 @@ public class CPU {
 
             //BRK
             case 0x00:
-                throw new UnsupportedOperationException("BRK instruction not implemented!");
+                this.BRK();
+                this.programCounter++;
 
-                //BVC
+            //BVC
             case 0x50:
                 instruction = "BVC";
                 this.BVC(this.getInstructionArg(1));
@@ -2333,7 +2334,43 @@ public class CPU {
      * status set to one.
      */
     private void BRK() {
+        /*
+        TODO MORIANO, I AM NOT SURE WHETHER THIS WORKS AS IT IS NOT PART OF THE NESTEST PROGRAM
+        Looked at https://github.com/OneLoneCoder/olcNES/blob/master/Part%232%20-%20CPU/olc6502.cpp#L893
+        For inspiration
+         */
+
+        /*
+        Note that this instruction needs to store the PC into the stack, now, the stack holds BYTES and the PC
+        is bigger than that, so it has to be split and TWO pushes to the stack will be needed.
+
+        So, lets assume we want to store
+
+        0xC601 into the stack, this number is composed of TWO bytes
+
+        Hight byte (0xC6) is 1100 0110
+        Low byte   (0x01) is 0000 0001
+
+        If we play with bitwise operators
+
+        0xC601 & 0xFF00 = 0xC600;   0xC600 >> 8 ==> 0x00C6 ==> We store this as the high byte
+
+        0xC601 & 0xFF   = 0x01 ==> We store this as the low byte
+         */
         this.breakCommand = true;
+
+        int rawValue = this.programCounter; //This does not feel right...
+
+        int highByte = (rawValue & 0xFF00) >> 8;
+        int lowByte = rawValue & 0xFF;
+
+        this.stackPush(highByte);
+        this.stackPush(lowByte);
+        this.stackPush(this.getRegisterS());
+        this.breakCommand = true;
+
+        this.programCounter = this.memory.read(0xFFFE) | this.memory.read(0xFFFF) << 8;
+
         this.cycles += 7;
     }
 

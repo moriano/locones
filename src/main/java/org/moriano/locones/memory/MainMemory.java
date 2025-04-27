@@ -37,7 +37,7 @@ package org.moriano.locones.memory;
  *   ($1A00 - $1FFF)     1024                RAM
  *
  */
-public class MainMemory {
+class MainMemory {
     private int[] memory = new int[2048];
 
 

@@ -43,9 +43,6 @@ public class Cartridge {
         for(int i = startPosition; i<limit; i++) {
 
             prgROM[j] = rawBytes[i];
-            if (rawBytes[i] == 0x4C || rawBytes[i] == 0x6C) {
-                log.info("GOOD AT POSITION " + j + " hex " + Integer.toHexString(j));
-            }
             j++;
         }
 

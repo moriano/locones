@@ -51,7 +51,6 @@ public class PatternTableUI extends JFrame  {
         JPanel mainPanel = new JPanel(new GridLayout(1, 2, 10, 0));
         int tileIdx = 0;
         for (int rowIdx = 0; rowIdx < 16; rowIdx++) {
-            String toLog = "";
             for(int colIdx =0; colIdx<16; colIdx++) {
                 Tile leftTile = this.leftTiles[tileIdx];
                 ImageIcon leftImage = this.drawTile(leftTile);
@@ -62,7 +61,6 @@ public class PatternTableUI extends JFrame  {
                 this.rightPanel.add(new JLabel(rightImage));
                 tileIdx++;
             }
-            log.info(toLog);
 
         }
         mainPanel.add(this.leftPanel);

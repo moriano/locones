@@ -72,7 +72,9 @@ public class CartrigdeHeader {
         String upperMapper = Integer.toString(ByteUtil.getBit(flags7, 7)) + Integer.toString(ByteUtil.getBit(flags7, 6)) + Integer.toString(ByteUtil.getBit(flags7, 5)) + Integer.toString(ByteUtil.getBit(flags7, 4));
 
         this.mapperNumber = Integer.parseInt(upperMapper+lowerRawMapper, 2);
-
+        if (this.mapperNumber != 0) {
+            throw new RuntimeException("Watch out!! This emulator only supports mapper 0, this game has mapper " + this.mapperNumber);
+        }
         int flags9 = rawBytes[9];
         /*
         76543210
