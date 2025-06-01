@@ -37,11 +37,11 @@ package org.moriano.locones.memory;
  *   ($1A00 - $1FFF)     1024                RAM
  *
  */
-class MainMemory {
+class CPUMemory {
     private int[] memory = new int[2048];
 
 
-    public MainMemory() {
+    public CPUMemory() {
         for(int i =0; i<memory.length; i++) {
             this.memory[i] = 0xFF;
         }

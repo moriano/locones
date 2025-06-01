@@ -27,8 +27,10 @@ public class NES {
     private final LogReader logReader = new LogReader();
     private int totalMemoryErrors = 0;
     private final Screen screen = new Screen();
+    private final boolean checkNestTestLog;
 
-    public NES(Cartridge cartridge, int initialPC) {
+    public NES(Cartridge cartridge, int initialPC, boolean checkNestTestLog) {
+        this.checkNestTestLog = checkNestTestLog;
         this.cpu = new CPU(initialPC);
         log.info("Emulating with cart ==> " + cartridge);
         long paletteStart = System.currentTimeMillis();
@@ -40,7 +42,7 @@ public class NES {
         this.cpu.setMemory(memory);
         this.cpu.setPpu(ppu);
         long start = System.currentTimeMillis();
-        int totalFrames = 2000;
+        int totalFrames = 200;
         for(int i = 0; i<=totalFrames; i++) {
             this.screen.generateRandomFrame();
         }
@@ -76,15 +78,20 @@ public class NES {
                 oldPPUCycles = ppuCycles;
                 cpuIterations++;
                 LogStatus expected = logReader.getLogStatus(cpuIterations);
-                if (expected == null) {
-                    System.out.println("Tests passed!!!");
 
+                if (this.checkNestTestLog && expected == null) {
+                    System.out.println("Tests passed!!!");
                     System.exit(0);
                 }
-                LogStatus status = this.cpu.cycle();
-                //this.printTrace(status, cpuIterations);
-                this.checkIterationSanity(status, expected, cpuIterations);
 
+                LogStatus status = this.cpu.cycle();
+
+                if (this.checkNestTestLog) {
+                    this.checkIterationSanity(status, expected, cpuIterations);
+                } else {
+                    this.printTrace(status, cpuIterations);
+                    int a = 1;
+                }
             }
         }
     }

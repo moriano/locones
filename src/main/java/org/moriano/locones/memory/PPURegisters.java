@@ -1,5 +1,7 @@
 package org.moriano.locones.memory;
 
+import org.moriano.locones.Run;
+
 /**
  * The PPU registers are a part of memory where CPU and PPU intersect. As such we cannot say that this memory
  * belongs neither to the CPU nor the PPU. It belongs to both.
@@ -14,7 +16,7 @@ package org.moriano.locones.memory;
 class PPURegisters {
 
     private final int[] ppuRegisters = new int[8];
-
+        
 
     /**
      * Remember, in practise we read from memory addresses that go from 0x2000 to 0x3FFF. But we do that
@@ -23,9 +25,16 @@ class PPURegisters {
      * @return
      */
     public int getFromAddress(int address) {
-        address = address & 0x2000; // Effectively mirrors 0x2000 to 0x3FFF
-        address = address & 0x0008; // Effectively keeps the values from 0 to 8
-        return this.ppuRegisters[address];
+        if (address < 0x2000 || address > 0x3FFF) {
+            throw new RuntimeException("Watch out, we are trying to read a PPU register on address "
+                    + Integer.toHexString(address) + " that is an invalid range!!");
+        }
+        /*
+        This converts the values to be from 0 to 7, mirroring every 8 bytes
+         */
+        int finalAddress = address & 0x7; // Effectively mirrors 0x2000 to 0x3FFF
+
+        return this.ppuRegisters[finalAddress];
     }
 
     /**
@@ -34,8 +43,15 @@ class PPURegisters {
      * @param value
      */
     public void set(int address, int value) {
-        address = address & 0x2000; // Effectively mirrors 0x2000 to 0x3FFF
-        address = address & 0x0008; // Effectively keeps the values from 0 to 8
-        this.ppuRegisters[address] = value;
+        /*
+        This converts the values to be from 0 to 7, mirroring every 8 bytes
+         */
+        int finalAddress = address & 0x7; // Effectively mirrors 0x2000 to 0x3FFF
+
+        this.ppuRegisters[finalAddress] = value;
+    }
+
+    public PPURegisterCTRL getPPURegisterCTRL() {
+        return new PPURegisterCTRL(0);
     }
 }

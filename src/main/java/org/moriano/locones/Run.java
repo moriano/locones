@@ -17,9 +17,9 @@ public class Run {
         PatternTables patternTables = PatternTables.fromCHRRom(cartridge.getChrROM());
         PatternTableUI patternTableUI = new PatternTableUI(patternTables);
 
-        Thread.sleep(1000);
-        NES myNes = new NES(cartridge, 0xC000); // 0xC004 is where i suspect the nestest program starts, this matches fceux debugger and log
-        //NES myNes = new NES(cartridge, 0xC004);
+        //Thread.sleep(1000);
+        //NES myNes = new NES(cartridge, 0xC000, true); // 0xC004 is where i suspect the nestest program starts, this matches fceux debugger and log
+        NES myNes = new NES(cartridge, 0xC004, false);
         myNes.startEmulation();
     }
 }

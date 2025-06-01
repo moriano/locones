@@ -33,7 +33,7 @@ import java.util.List;
  *   ($1900 - $19FF)     256                 Stack
  *   ($1A00 - $1FFF)     1024                RAM
  *
- *   $2000 - $2007       8 bytes             Input / Output registers (PPU REGISTERS)
+ *   $2000 - $2007       8 bytes             Input / Output registers (PPU REGISTERS) <== Read by PPU and CPU
  *   $2008 - $3FFF       8184 bytes          Mirror of $2000-$2007 (multiple times)
  *
  *   $4000 - $401F       32 bytes            Input / Output registers
@@ -56,7 +56,7 @@ public class Memory {
     read from address 0x801, internally we will just read from address 0x001, in order to do that, a simple
     bitwise AND is enough, using address 0x1FFF (previous value of 0x2000
      */
-    private final MainMemory mainMemory = new MainMemory();
+    private final CPUMemory cpuMemory = new CPUMemory();
 
     private final APUMemory apuMemory = new APUMemory();
     private final PPUMemory ppuMemory;
@@ -73,7 +73,7 @@ public class Memory {
     public int read(int address) {
         operationsHistory.add("      READ      $"+toHex(address));
         if(address <= 0x1FFF) { //Ram memory (or any of its three mirrors)
-            return this.mainMemory.getFromAddress(address);
+            return this.cpuMemory.getFromAddress(address);
         } else if(address <= 0x3FFF) { //PPU register (mirrored every 8 bytes)
             /*
             These are the memory addresses that CPU and PPU use to communicate with one another.
@@ -111,7 +111,7 @@ public class Memory {
             value += 128;
         }
         if(address <= 0x1FFF) {
-            this.mainMemory.set(address, value);
+            this.cpuMemory.set(address, value);
         } else if(address <=  0x3FFF) { //PPU register (mirrored every 8 bytes)
             /*
             These are the memory addresses that CPU and PPU use to communicate with one another.

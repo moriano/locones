@@ -4,9 +4,6 @@ A, not completed, always in progress, NES emulator in Java
 
 The vast majority of this file comes from https://www.nesdev.org/wik
 
-## General stuff to know
-
-In java
 
 ## NES Architecture and stuff i learned
 
@@ -46,6 +43,7 @@ The 6502 has few registers.
 3. Register A (Acumulator)
 4. Register SP (Stack Pointer)
 5. ProgramCounter (PC)
+6. Status register P
 
 All registers are 1 byte, except the ProgramCounter, which is 2 bytes.
 
@@ -62,6 +60,8 @@ The program counter indicates what is the NEXT byte to read from, this is used b
 which opcode and addressing mode to use. Of course the ProgramCounter is increased every time the CPU read from 
 memory.
 
+The status register holds a number of flags, see the CPU implementation to understand how it works. 
+
 ### PPU 
 
 This is the Picture Processing Unit. It is a custom chip by Nintendo and is the responsible of drawing into the 
@@ -69,6 +69,37 @@ screen, you can think of it as the GPU of the system (remember, the NES is from 
 GPU really is a very loose analogy)
 
 TODO moriano: Put a link to CHR ROM
+
+#### PPU Registers (sourced from https://www.nesdev.org/wiki/PPU_registers)
+
+A total of 8 registers are available, they are in addresses 0x2000 to 0x2007
+
+Lets go one by one
+
+##### PPUCTRL Register 0x2000
+
+PPUCTRL (the "control" or "controller" register) contains a mix of settings related to 
+rendering, scroll position, vblank NMI, and dual-PPU configurations. After power/reset, 
+writes to this register are ignored until the first pre-render scanline.
+
+
+```
+7  bit  0
+---- ----
+VPHB SINN
+|||| ||||
+|||| ||++- Base nametable address
+|||| ||    (0 = $2000; 1 = $2400; 2 = $2800; 3 = $2C00)
+|||| |+--- VRAM address increment per CPU read/write of PPUDATA
+|||| |     (0: add 1, going across; 1: add 32, going down)
+|||| +---- Sprite pattern table address for 8x8 sprites
+||||       (0: $0000; 1: $1000; ignored in 8x16 mode)
+|||+------ Background pattern table address (0: $0000; 1: $1000)
+||+------- Sprite size (0: 8x8 pixels; 1: 8x16 pixels – see PPU OAM#Byte 1)
+|+-------- PPU master/slave select
+|          (0: read backdrop from EXT pins; 1: output color on EXT pins)
++--------- Vblank NMI enable (0: off, 1: on)
+```
 
 ### Cartridge
 
@@ -142,9 +173,113 @@ Each mapper has its own trickery.
 
 #### CHR ROM
 
-TODO MORIANO
+This is the Character ROM. It contains the graphics of the game. The way in which the graphics are stored is in 
+blocks of 16bytes. Each block of 16bytes represents a tile. A tile is made of 8x8 pixels. 
+
+The way to visualize each tile follows this: 
+
+1. Take a block of 16bytes of the CHR ROM
+2. Divide them into two blocks of 8bytes. 
+3. Now for each block of 8bytes, represent them as an 8x8 binary square. 
+An example of this, imagine we have 16 bytes as 
+High byte 0xC1, 0xC2 0x44 0x48 0x10 0x20 0x40 0x80
+Low byte  0x01  0x02 0x04 0x08 0x16 0x21 0x42 0x87
+
+Now lets represent the high 8bytes as 8x8 binary square, where each value is either 0 or 1
+```
+  0x41  0 1 0 0 0 0 0 1
+  0xC2  1 1 0 0 0 0 1 0
+  0x44  0 1 0 0 0 1 0 0
+  0x48  0 1 0 0 1 0 0 0     ===> Notice how this high bytes shows the "picture" =>  1/
+  0x10  0 0 0 1 0 0 0 0                                     No, really, look at it, it is a one with a fraction line
+  0x20  0 0 1 0 0 0 0 0
+  0x40  0 1 0 0 0 0 0 0
+  0x80  1 0 0 0 0 0 0 0
+```
+
+And now the low byte
+```
+  0x01  0 0 0 0 0 0 0 1
+  0x02  0 0 0 0 0 0 1 0
+  0x04  0 0 0 0 0 1 0 0
+  0x08  0 0 0 0 1 0 0 0    ===> Notice how this high bytes shows the "picture" =>  /2
+  0x16  0 0 0 1 0 1 1 0
+  0x21  0 0 1 0 0 0 0 1
+  0x42  0 1 0 0 0 0 1 0
+  0x87  1 0 0 0 0 1 1 1
+```
+
+Ok, now we `add` both of them, the low byte bit represents either 0x10 or 0x00, the high byte 
+bit represents either 0x01 or 0x00, so by adding them we have a square with 4 possible values 
+(0 to 3)
+
+```
+  0 1 0 0 0 0 0 3
+  1 1 0 0 0 0 3 0
+  0 1 0 0 0 3 0 0
+  0 1 0 0 3 0 0 0
+  0 0 0 3 0 2 2 0 ===> Now make a bit of an effort, we have the "picture" 1/2 here
+  0 0 3 0 0 0 0 2      the actual values 0 1 2 and 3 will represent different colors, but for that we need to
+  0 3 0 0 0 0 2 0      load the frame palettes
+  3 0 0 0 0 2 2 2
+```
+
+By doing this, we get a single tile. In total games will have 2 sets of 16 by 16 tiles. That 
+means a total of 2 sets of 256 tiles each, so that means 512 tiles. 
+
+
 
 #### PGR ROM
 
-TODO MORIANO
+The Program ROM is where the actual video game is defined. The ProgramCounter will indicate the 
+CPU where to start executing the game, after that it is up to the CPU to simply fetch the operation 
+code alongside with the paramters (if any), increment the ProgramCounter and execute the actual 
+instructions.
 
+### Memory
+
+First and foremost, we must not confuse the term memory with `main memory`. These are two different ideas.
+
+When I refer to memory here i refer to the entire memory that the NES system can use, that includes the 
+`main memory` as well as other memories. To be more specific, keep in mind that when a cartridge was inserted
+into the NES, it essentially connected the cartridge memory to the system, so in a way CHR ROM and PGR ROM 
+are also part of the memory. 
+
+Generally speaking the NES had 2KB of main memory (aka RAM) and 2KB of video memory. But again on top of this we 
+need to add the cartridge. 
+
+We can divide the memory into two areas: The CPU Memory and and the PPU Memory spaces.
+
+#### CPU Memory map
+
+|Address range|Size | Description|
+|----|-----|-----|
+| 0x0000-0x07FFF| 2KB | Main memory (RAM)|
+| 0x0800-0x0FFF | 2KB|Mirrors 0x0000-0x07FFF  |
+| 0x1000-0x17FF | 2KB |Mirrors 0x0000-0x07FFF  |
+| 0x1800-0x1FFF | 2KB |Mirrors 0x0000-0x07FFF  |
+| 0x2000-0x2007 |    7B |PPU Registers |
+| 0x2008-0x3FFF | ~8KB | Mirrors of 0x2000-0x2007|
+| 0x4000-0x4017 | 24B | APU and I/O functionality |
+| 0x4020-0xFFFF | ~48KB| Unmapped, for cartridge use |
+| 0x6000-0x7FFF | 8KB | Cartridge RAM, when present |
+| 0x8000-0xFFFF | 32K | Cartridge ROM and mapper registers |
+
+Notice something interesting. The CPU memory map can only ~98KB of cartridge memory, there are however 
+cartridges that are larger than that. That is where mappers come into play. Mappers translate addresses 
+in a way so that the CPU can access different memory banks within a cartridge. Remember that mappers where 
+actually chunks of hardware that were part of the cartridge itself.
+
+#### PPU Memory map
+
+|Address range|Size | Description|
+|----|-----|-----|
+| 0x0000-0x0FFF | 4KB | Pattern table 0 (CHR ROM) |
+| 0x0000-0x1FFF | 4KB | Pattern table 1 (CHR ROM) |
+| 0x2000-0x23FF | 1KB | NameTable 0 |
+| 0x2400-0x27FF | 1KB | NameTable 1 |
+| 0x2800-0x2BFF | 1KB | NameTable 2 | 
+| 0x2C00-0x2FFF | 1KB | NameTable 3 | 
+| 0x3000-0x3EFF | 3.75KB | Unused |
+| 0x3F00-0x3F1F | 32B | Palette RAM index (internal to PPU) |
+| 0x3F20-0x3FFF | 224 | Mirrors 0x3F00-0x3F1F (internal to PPU) |
