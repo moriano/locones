@@ -1,4 +1,4 @@
-package org.moriano.locones.memory;
+package org.moriano.locones.memory.ppuregister;
 
 import org.moriano.locones.screen.SpriteSize;
 import org.moriano.locones.util.ByteUtil;
@@ -33,7 +33,7 @@ import javax.print.DocFlavor;
  * For implementation purposes, we expose directly the booleans as way to facilitate the code
  *
  */
-public class PPURegisterCTRL {
+public class PPURegisterCTRL  extends PPURegister {
 
     private int rawValue;
 
@@ -54,6 +54,10 @@ public class PPURegisterCTRL {
         } else {
             return 0x2C00;
         }
+    }
+
+    public int getRawValue() {
+        return rawValue;
     }
 
     public int getVramAddress() {

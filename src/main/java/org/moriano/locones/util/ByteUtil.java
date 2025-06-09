@@ -15,6 +15,20 @@ public class ByteUtil {
         return result;
     }
 
+    public static int setBit(int value, int bitPosition, int bitValue) {
+        if (bitValue != 0 && bitValue != 1) {
+            throw new RuntimeException("you can only set bits to be either 0 or 1");
+        }
+        if (bitValue == 1) {
+            value = value | (1 << bitPosition);
+        } else {
+            value = value & ~(1 << bitPosition);
+        }
+
+        return value;
+
+    }
+
     /**
      * Given an exactly 8byte array, display it as a 8x8 table, where each value is either 0 or 1
      * @param tileData

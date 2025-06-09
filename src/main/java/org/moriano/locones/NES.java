@@ -92,6 +92,7 @@ public class NES {
                     this.printTrace(status, cpuIterations);
                     int a = 1;
                 }
+                int b = 2;
             }
         }
     }
